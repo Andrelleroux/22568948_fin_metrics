@@ -1,0 +1,238 @@
+---
+output:
+  md_document:
+    variant: markdown_github
+---
+
+# 22568948 Financial Econometrics Practical Exam
+
+In this markdown folder I will explain my thinking and working for the coding aspect of the Financial Econometrics final exam in November 2024. I will work through the questions one by one and talk through the code that I wrote to complete it.
+
+
+```{r, results='hide', message=FALSE, warning=FALSE}
+
+rm(list = ls()) # Clean your environment:
+gc()
+setwd("C:/Users/andre/OneDrive/Documents/Masters_2024_stuff/Financial_Econometrics/Fin_Metrics_Exam/22568948_fmxdat")
+
+library(tidyverse)
+```
+
+## Packages
+
+What follows is the list of packages that have been used throughout the functions of this project:
+
+* tidyverse (includes ggplot2, dplyr)
+* Texevier
+* 
+
+## Question 1
+
+It is firstly important that the working directory of the project is properly allocated as the directory is used to create folders and projects. All Texevier lines of code was commented as the projects had already been created.
+
+```{r, results='hide', message=FALSE, warning=FALSE}
+#Firstly I create the Texevier project for writing the report and coding in Question 1
+#Texevier::create_template_html(directory = glue::glue("{getwd()}/"), template_name = "Question_1")
+
+#Secondly I fetch the functions that I wrote from the code folder in Question 1
+list.files('Question_1/code/', full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
+
+```
+
+The first command that is run is to create a Texevier HTML project under the title Question_1 wherein I complete the question. The second is to fetch the functions that I create while writing the report for question 1.
+
+```{r, results='hide', message=FALSE, warning=FALSE}
+Baby_names_df <- Data_Reading("Question_1/data/Baby_Names_By_US_State.rds")
+```
+
+This function simply read the data from the given rds file into a dataframe that can be used in the report. No data transformations take place in this function.
+
+```{r, message=FALSE, warning=FALSE}
+plot_corr <- Corr_plot(Baby_names_df)
+plot_corr
+```
+
+This function transforms the base dataframe to a format that can be used to plot the Spearman correlation over time. The first step is to rank the most popular names from each year across the United States. This is done by grouping by year and name and them summarising to get to get the totals. Then we arrange the totals in descending order according to the totals of each name in each year. We can then rank by group to get the ranking in each year.
+
+Once we have this we can rename the rank variable and mutate the year to be _no_Years_ years earlier (where _no_Years_ can be set, default is 3). We can then left_join the dataframe with the renamed and mutated dataframe to get the rank of the names in the start year and the later year. We then arrange by the rank in the start year and use "slice_head" to get the top _no_top_ names per year (where _no_top_ can be set, the default is 25). Correlation is then calculated between the ranks of the names in the start year and their rank x years later, the Spearman method is used.
+
+This is then plotted using a geometric line graph to show the changes in correlation over time, geometric points are added to highlight the exact points in time and finally a geom_smooth plot is used to show a smoothed mean across time with a confidence interval of _conf_level_ (where _conf_level_ can be set, the default is 0.95).
+
+```{r, message=FALSE, warning=FALSE}
+plot_ridge <- Ridge_plot(Baby_names_df)
+plot_ridge
+```
+
+This first step in this function is to take the same base dataframe and group by name and summarise by count to get the total count of babies per baby name. Using arrange and head we can get the top _no_names_ most used names (where _no_names_ can be set, default is 15). 
+
+Then I can group by Year and Name to summarise by count and filter for the top _no_names_ names in each year. I then use the ggridges package to plot a density ridge plot for the popularity of the most popular names over time. Using alpha = 0.5 to make the graphs more see through. 
+
+## Question 2
+
+This section explains the coding behind question 2 of the exam. The following code was used to create the project and to fetch the function to be used in Question 2 from the code folder.
+
+```{r, results='hide', message=FALSE, warning=FALSE}
+#Firstly Create the Texevier project
+#Texevier::create_template_html(directory = glue::glue("{getwd()}/"), template_name = "Question_2")
+
+#Secondly I fetch the functions that I wrote from the code folder in Question 2
+list.files('Question_2/code/', full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
+```
+
+```{r, results='hide', message=FALSE, warning=FALSE}
+Musictaste_df <- Inputting_Data(data_root = "Question_2/data/")
+```
+
+This function reads the csv files for Metallica and Coldplay and then combines them by binding their rows.
+
+```{r, results='hide', message=FALSE, warning=FALSE}
+Filtered_df <- Data_Filtering(Musictaste_df)
+```
+
+This functions alters the base dataframe to a more usable version. Firstly a variable is created that defines which band plays which songs. Then differently names album and duration variables are combined together. Then we filter out all songs that include "Live" or "Edit" in the title and remove all albums that have "Deluxe", "Live" or "Remaster" in the name, I also add back one original song that included "Live" in the title.
+
+We select the variables we want and scale the relevant musical features to be on a scale between 0-100, except for tempo.
+
+```{r, message=FALSE, warning=FALSE, fig.height = 8, fig.width = 9}
+plot_box <- Plot_Pop_Box(Filtered_df)
+plot_box
+```
+
+In the above function I firstly group by album and count the number of songs. This allows me to filter by albums that have more than _no_songs_ songs (where _no_songs_ can be set, default is 1). Secondly I then group by album and filter according to the albums that have more than _no_songs_ songs. I then plot a box plot for each album, ordering the x-axis according to release date. A jitter plot is added to show the individual songs, but with a low alpha and size to not detract from the box plot.
+
+```{r, message=FALSE, warning=FALSE}
+plot_hist <- Plot_Histogram(Filtered_df)
+plot_hist
+```
+
+For this plot I first group by the band and summarise all numeric columns by mean. I then select the Band and all musical features and pivot the dataframe to a longer version with the musical features as rows and the bands as columns. I can then make a grouped bar plot to compare the musical features for the different bands. I use position = "dodge" to have spaces between the bar plots and stat = "identity" to use the values in the dataframe rather than the count() function.
+
+```{r, message=FALSE, warning=FALSE}
+Supp_df <- Preparing_Supplementary(data_root = "Question_2/data/")
+```
+
+This function read in and adapts the supplementary datasets of Spotify and Billboard to a combined functional dataset. Firstly Spotify is read in, duration is adapted and variables of interest are selected. 
+
+Secondly, the Billboard rds file is read in and filtered to be songs that achieved a peak rank in a week of 20 or better. We then select variables of interest and group by song and artist. This allows us to arrange by date across the groups and keep the last week so that we have unique entries for each song on their last week in the chart.
+
+Lastly we can join these dataframes together by song and artist, filter away the Billboard entries that do not have Spotify equals, we summarise across musical features and mutate the relevant features to again be on a scale from 0-100. We now have a dataset of the musical features of popular music.
+
+```{r, message=FALSE, warning=FALSE}
+Comparison_plot <- Comparing_Features(Filtered_df, Supp_df)
+Comparison_plot
+```
+
+In this function we firstly rename the relevant variables in the first dataframe to appropiately leftjoin with the supplementary dataframe and pivot the table to have the musical features as columns. This allows me to plot a violin graph for each Band and popular music, which is then facet wrapped with the different musical features. Y scales are set to free and alpha is low for interpretability. 
+
+## Question 3
+
+```{r, results='hide', message=FALSE, warning=FALSE}
+#Firstly Create the Texevier project
+#Texevier::create_template_html(directory = glue::glue("{getwd()}/"), template_name = "Question_3")
+
+#Secondly I fetch the functions that I wrote from the code folder in Question 3
+list.files('Question_3/code/', full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
+```
+
+The above code fetches the functions from the code folder under question 3.
+
+```{r, results='hide', message=FALSE, warning=FALSE}
+read_Data <- Data_Read(data_root = "Question_3/data/")
+```
+
+This function reads the 'Financial Allocations' and 'Financial Commitments' csv files and then joins them together according to country. 
+
+```{r, results='hide', message=FALSE, warning=FALSE}
+Map_df <- Make_Map_Data(read_Data)
+```
+
+In order to construct a geographical map of Europe we first create a dataframe using the ne_countries command from the rnaturalearth package that returns a dataset of polygons by country. The next step is to create a second dataframe which contains the data from our Data_Read() function, we then add a variable that calculates the commitment as a percentage of GDP.
+
+To combine the dataframes we first mutate the variable containing country names to be called the same name and deal with one fringe case where the names for the same countries did not match between dataframes. We then merge the two dataframes by country names.
+
+```{r, message=FALSE, warning=FALSE}
+map_plot <- Create_Map(Map_df)
+map_plot
+```
+
+The Create_Map() function firstly takes the polygons from the merged dataframe and links them to points on the map, these points are then changed into coordinates which are placed into the merged dataset. This data can then be used to plot a 'simple feature' graph that is filled according to the level of commitments. The limits of the coordinates are set to focus on Europe as the Australian news desk asked for a focus on Europe.
+
+```{r, message=FALSE, warning=FALSE}
+table <- Create_Table(read_Data, Markdown = TRUE)
+table
+```
+
+The Create_Table() function takes the initial dataset and firstly removes missing values, then I calculate the total commitments and allocations for each country by adding their total individual commitments/allocations and their commitments/allocations made through the EU. Then I subtract the total allocations from the total commitments to calculate the difference in what was promised and what is given. 
+
+I then arrange by the difference and filter the values so that only the extremes on either side shows up. The dataframe is then piped to a kable function which turns it into a table.
+
+## Question 4
+
+```{r, results='hide', message=FALSE, warning=FALSE}
+#Firstly Create the Texevier project
+#Texevier::create_template_html(directory = glue::glue("{getwd()}/"), template_name = "Question_4")
+
+#Secondly I fetch the functions that I wrote from the code folder in Question 4
+list.files('Question_4/code/', full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
+```
+
+The first chunk fetched the function from where they are stored in the code folder under Question_4.
+
+```{r, results='hide', message=FALSE, warning=FALSE}
+Olympic_df <- Entering_Data("Question_4/data/")
+```
+
+The first function (Entering_Data()) reads the data out of their respective rds files, one for the Summer Olympics, one for the Winter Olympics and one for the GDP per country. Both Summer and Winter datasets are appended with a column stating whether it is the Winter or Summer Olympics. These two are binded together by rows before being left joined by the GDP dataset by the three letter codes.
+
+```{r, message=FALSE, warning=FALSE}
+India_plot <- India_Comparison_Plot(data = Olympic_df, data_root = "Question_4/data/")
+India_plot
+```
+
+For this function it is important that I get to the total amount of unique medals won by each country. Firstly I filter so that I only have Summer observations. Then I group by year, event, sport and medal, this allows me to count by country to get the total amount of medals per medal event. Then I can group by country and summarise by gold, silver and bronze medals. This allows me to create a column which is the medal tally for each country. $$Medal Tally = 3 \times Gold Medals + 2 \times Silver Medals + 1 \times Bronze Medals $$ I then rejoin the GDP dataset and rank the countries by GDP per capita. 
+
+After this I can find the rank of India and filter so that the dataframe only contains India and the _Range_size_ (where _Range_size_ can be set, default is 10) above and below India according to GDP per capita. This can be piped to a lollipop plot which allows me to analyse the medal tallies of surrounding countries. Lollipop size is scaled with the square root of population to account for the exponential differences across countries.
+
+```{r, message=FALSE, warning=FALSE}
+stack_plot <- Stacked_Medal_Plot(Olympic_df)
+stack_plot
+```
+
+In the Stacked_Medal_Plot() function we first alter the operations from the previous function that returns the medal tally per country so that it gives the total medal tally in the dataset, we then arrange the dataset in descending order of medal tally and take the top 9 countries (excluding the Soviet Union and East Germany). 
+
+This is then used to filter the overall dataset by these 9 countries and plot a stacked line chart between winter and summer Olympics for the nine most historically successful nations. Facet wrap is used to see the different countries side by side. 
+
+```{r, message=FALSE, warning=FALSE}
+punching_table <- Create_Table_Punching(Olympic_df, Markdown = TRUE, data_root = "Question_4/data/")
+punching_table
+```
+
+In this function we perform similar operation to the previous function, but we then continue to rank countries by total medal tally and also by GDP per capita. Once we have both ranks we can subtract them from each other to form a column that displays the difference in ranking between GDP per capita and medal tally. This difference in rankings is then filtered to just include the extremes and is then printed to a table. The level of extremity can be decided by adjusting _top_bot_size_ (default of _top_bot_size_ is set to 41).
+
+```{r, message=FALSE, warning=FALSE}
+weight_plot <- C_Weight_Plot(Olympic_df)
+weight_plot
+```
+
+This function focuses specifically on the sport of weightlifting at the Olympics. I then filter by weightlifting and calculate the total medal tallies for all countries in weightlifting. I then take the top _no_countries_ (where _no_countries_ can be set, but the default is 10). I then calculate and plot the cumulative medal over time for the top countries and draw a line plot with geometric points. I add a vertical line at the year 1967 as this is when performance enhancing drugs was outlawed. 
+
+## Question 5
+
+
+```{r, results='hide', message=FALSE, warning=FALSE}
+#Firstly Create the Texevier project
+#Texevier::create_template_html(directory = glue::glue("{getwd()}/"), template_name = "Question_5")
+
+list.files('Question_5/code/', full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
+```
+
+The above code created the Texevier document and calls the available functions from the question 5 code folder.
+
+```{r, results='hide', message=FALSE, warning=FALSE}
+#Database_Connect(dataroot = "datascience")
+
+```
+
+The above function should in theory connect to an external database, however in this specific context I could not get it to work. It gives me an error saying that the object 'out' could not be found. Further work was done to try and get access via a dev.sql file that is not included here.
+
+

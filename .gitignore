@@ -1,0 +1,6 @@
+#Excel Data file
+*.csv
+
+#Other Data Types
+*.rds
+*.txt
