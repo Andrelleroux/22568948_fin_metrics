@@ -28,7 +28,7 @@ What follows is the list of packages that have been used throughout the function
 
 ## Question 1
 
-It is firstly important that the working directory of the project is properly allocated as the directory is used to create folders and projects. All Texevier lines of code was commented as the projects had already been created.
+It is firstly important that the working directory of the project is properly allocated as the directory is used to create folders and projects. All Texevier lines of code was commented as the projects have already been created.
 
 ```{r, results='hide', message=FALSE, warning=FALSE}
 #Firstly I create the Texevier project for writing the report and coding in Question 1
