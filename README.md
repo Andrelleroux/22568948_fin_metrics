@@ -1,14 +1,14 @@
-# 22568948 Data Science Practical Exam
+# 22568948 Financial Econometrics Practical Exam
 
 In this markdown folder I will explain my thinking and working for the
-coding aspect of the Data Science Methods for Economics and Finance
-final exam in June 2024. I will work through the questions one by one
-and talk through the code that I wrote to complete it.
+coding aspect of the Financial Econometrics final exam in November 2024.
+I will work through the questions one by one and talk through the code
+that I wrote to complete it.
 
 ``` r
 rm(list = ls()) # Clean your environment:
 gc()
-setwd("C:/Users/andre/OneDrive/Documents/Masters_2024_stuff/Data_Science/Data_Science_Exam/22568948")
+setwd("C:/Users/andre/OneDrive/Documents/Masters_2024_stuff/Financial_Econometrics/Fin_Metrics_Exam/22568948_fin_metrics")
 
 library(tidyverse)
 ```
@@ -20,15 +20,7 @@ functions of this project:
 
 -   tidyverse (includes ggplot2, dplyr)
 -   Texevier
--   knitr
--   kableExtra
--   lwgeom
--   sf
--   rnaturalearth
--   rnaturalearthdata
--   ggridges
--   GGally
--   dbbasic
+-   
 
 ## Question 1
 
@@ -51,7 +43,7 @@ fetch the functions that I create while writing the report for question
 1.
 
 ``` r
-Baby_names_df <- Data_Reading("Question_1/data/Baby_Names_By_US_State.rds")
+#Baby_names_df <- Data_Reading("Question_1/data/Baby_Names_By_US_State.rds")
 ```
 
 This function simply read the data from the given rds file into a
@@ -59,11 +51,9 @@ dataframe that can be used in the report. No data transformations take
 place in this function.
 
 ``` r
-plot_corr <- Corr_plot(Baby_names_df)
-plot_corr
+#plot_corr <- Corr_plot(Baby_names_df)
+#plot_corr
 ```
-
-![](README_files/figure-markdown_github/unnamed-chunk-4-1.png)
 
 This function transforms the base dataframe to a format that can be used
 to plot the Spearman correlation over time. The first step is to rank
@@ -90,11 +80,9 @@ mean across time with a confidence interval of *conf_level* (where
 *conf_level* can be set, the default is 0.95).
 
 ``` r
-plot_ridge <- Ridge_plot(Baby_names_df)
-plot_ridge
+#plot_ridge <- Ridge_plot(Baby_names_df)
+#plot_ridge
 ```
-
-![](README_files/figure-markdown_github/unnamed-chunk-5-1.png)
 
 This first step in this function is to take the same base dataframe and
 group by name and summarise by count to get the total count of babies
@@ -121,14 +109,14 @@ list.files('Question_2/code/', full.names = T, recursive = T) %>% .[grepl('.R', 
 ```
 
 ``` r
-Musictaste_df <- Inputting_Data(data_root = "Question_2/data/")
+#Musictaste_df <- Inputting_Data(data_root = "Question_2/data/")
 ```
 
 This function reads the csv files for Metallica and Coldplay and then
 combines them by binding their rows.
 
 ``` r
-Filtered_df <- Data_Filtering(Musictaste_df)
+#Filtered_df <- Data_Filtering(Musictaste_df)
 ```
 
 This functions alters the base dataframe to a more usable version.
@@ -143,11 +131,9 @@ We select the variables we want and scale the relevant musical features
 to be on a scale between 0-100, except for tempo.
 
 ``` r
-plot_box <- Plot_Pop_Box(Filtered_df)
-plot_box
+#plot_box <- Plot_Pop_Box(Filtered_df)
+#plot_box
 ```
-
-![](README_files/figure-markdown_github/unnamed-chunk-9-1.png)
 
 In the above function I firstly group by album and count the number of
 songs. This allows me to filter by albums that have more than *no_songs*
@@ -159,11 +145,9 @@ individual songs, but with a low alpha and size to not detract from the
 box plot.
 
 ``` r
-plot_hist <- Plot_Histogram(Filtered_df)
-plot_hist
+#plot_hist <- Plot_Histogram(Filtered_df)
+#plot_hist
 ```
-
-![](README_files/figure-markdown_github/unnamed-chunk-10-1.png)
 
 For this plot I first group by the band and summarise all numeric
 columns by mean. I then select the Band and all musical features and
@@ -174,7 +158,7 @@ compare the musical features for the different bands. I use position =
 use the values in the dataframe rather than the count() function.
 
 ``` r
-Supp_df <- Preparing_Supplementary(data_root = "Question_2/data/")
+#Supp_df <- Preparing_Supplementary(data_root = "Question_2/data/")
 ```
 
 This function read in and adapts the supplementary datasets of Spotify
@@ -194,11 +178,9 @@ a scale from 0-100. We now have a dataset of the musical features of
 popular music.
 
 ``` r
-Comparison_plot <- Comparing_Features(Filtered_df, Supp_df)
-Comparison_plot
+#Comparison_plot <- Comparing_Features(Filtered_df, Supp_df)
+#Comparison_plot
 ```
-
-![](README_files/figure-markdown_github/unnamed-chunk-12-1.png)
 
 In this function we firstly rename the relevant variables in the first
 dataframe to appropiately leftjoin with the supplementary dataframe and
@@ -221,7 +203,7 @@ The above code fetches the functions from the code folder under question
 3.
 
 ``` r
-read_Data <- Data_Read(data_root = "Question_3/data/")
+#read_Data <- Data_Read(data_root = "Question_3/data/")
 ```
 
 This function reads the ‘Financial Allocations’ and ‘Financial
@@ -229,7 +211,7 @@ Commitments’ csv files and then joins them together according to
 country.
 
 ``` r
-Map_df <- Make_Map_Data(read_Data)
+#Map_df <- Make_Map_Data(read_Data)
 ```
 
 In order to construct a geographical map of Europe we first create a
@@ -245,11 +227,9 @@ where the names for the same countries did not match between dataframes.
 We then merge the two dataframes by country names.
 
 ``` r
-map_plot <- Create_Map(Map_df)
-map_plot
+#map_plot <- Create_Map(Map_df)
+#map_plot
 ```
-
-![](README_files/figure-markdown_github/unnamed-chunk-16-1.png)
 
 The Create_Map() function firstly takes the polygons from the merged
 dataframe and links them to points on the map, these points are then
@@ -260,34 +240,9 @@ set to focus on Europe as the Australian news desk asked for a focus on
 Europe.
 
 ``` r
-table <- Create_Table(read_Data, Markdown = TRUE)
-table
+#table <- Create_Table(read_Data, Markdown = TRUE)
+#table
 ```
-
-| Country        | Commitments | Allocations | GDP in 2021 | Difference |
-|:---------------|------------:|------------:|------------:|-----------:|
-| United States  |  75.4024265 |   0.0022839 | 23315.08056 |  75.400143 |
-| Germany        |  43.5377838 |   0.1432366 |  4259.93491 |  43.394547 |
-| Denmark        |  11.2931999 |   1.1340074 |   398.30327 |  10.159192 |
-| Netherlands    |  10.5792886 |   1.2228751 |  1012.84676 |   9.356414 |
-| Japan          |   8.3630170 |   0.5488147 |  4940.87778 |   7.814202 |
-| Canada         |   8.2810077 |   0.7764724 |  1988.33633 |   7.504535 |
-| France         |  23.1859875 |  15.8355272 |  2957.87976 |   7.350460 |
-| Poland         |   7.9081260 |   0.5728865 |   679.44483 |   7.335240 |
-| Italy          |  12.9910980 |   6.4517213 |  2107.70284 |   6.539377 |
-| Sweden         |   6.5941001 |   0.8514579 |   635.66380 |   5.742642 |
-| Cyprus         |   0.1511983 |   1.5029862 |    28.40787 |  -1.351788 |
-| Romania        |   1.5116474 |   3.3889639 |   284.08756 |  -1.877317 |
-| New Zealand    |   0.0505598 |   2.5841438 |   249.88569 |  -2.533584 |
-| Czech Republic |   2.8123711 |   5.5093009 |   281.77789 |  -2.696930 |
-| Hungary        |   0.9293242 |   4.0265892 |   181.84802 |  -3.097265 |
-| Malta          |   0.0807054 |   5.4945799 |    17.36404 |  -5.413875 |
-| Bulgaria       |   0.6564385 |   6.2144780 |    84.05631 |  -5.558039 |
-| Turkey         |   0.0721057 |   9.7417417 |   819.03518 |  -9.669636 |
-| Estonia        |   1.3236366 |  37.7962519 |    37.19117 | -36.472615 |
-| United Kingdom |  17.0196347 |  71.8588265 |  3131.37776 | -54.839192 |
-
-Difference Between Promises and Results
 
 The Create_Table() function takes the initial dataset and firstly
 removes missing values, then I calculate the total commitments and
@@ -314,7 +269,7 @@ The first chunk fetched the function from where they are stored in the
 code folder under Question_4.
 
 ``` r
-Olympic_df <- Entering_Data("Question_4/data/")
+#Olympic_df <- Entering_Data("Question_4/data/")
 ```
 
 The first function (Entering_Data()) reads the data out of their
@@ -325,11 +280,9 @@ Summer Olympics. These two are binded together by rows before being left
 joined by the GDP dataset by the three letter codes.
 
 ``` r
-India_plot <- India_Comparison_Plot(data = Olympic_df, data_root = "Question_4/data/")
-India_plot
+#India_plot <- India_Comparison_Plot(data = Olympic_df, data_root = "Question_4/data/")
+#India_plot
 ```
-
-![](README_files/figure-markdown_github/unnamed-chunk-20-1.png)
 
 For this function it is important that I get to the total amount of
 unique medals won by each country. Firstly I filter so that I only have
@@ -342,19 +295,17 @@ tally for each country.
 I then rejoin the GDP dataset and rank the countries by GDP per capita.
 
 After this I can find the rank of India and filter so that the dataframe
-only contains India and the *Range_size* (where *Range_size* can be set,
-default is 10) above and below India according to GDP per capita. This
-can be piped to a lollipop plot which allows me to analyse the medal
-tallies of surrounding countries. Lollipop size is scaled with the
+only contains India and the \#*Range_size* (where \#*Range_size* can be
+set, default is 10) above and below India according to GDP per capita.
+This can be piped to a lollipop plot which allows me to analyse the
+medal tallies of surrounding countries. Lollipop size is scaled with the
 square root of population to account for the exponential differences
 across countries.
 
 ``` r
-stack_plot <- Stacked_Medal_Plot(Olympic_df)
-stack_plot
+#stack_plot <- Stacked_Medal_Plot(Olympic_df)
+#stack_plot
 ```
-
-![](README_files/figure-markdown_github/unnamed-chunk-21-1.png)
 
 In the Stacked_Medal_Plot() function we first alter the operations from
 the previous function that returns the medal tally per country so that
@@ -368,40 +319,9 @@ nine most historically successful nations. Facet wrap is used to see the
 different countries side by side.
 
 ``` r
-punching_table <- Create_Table_Punching(Olympic_df, Markdown = TRUE, data_root = "Question_4/data/")
-punching_table
+#punching_table <- Create_Table_Punching(Olympic_df, Markdown = TRUE, data_root = "Question_4/data/")
+#punching_table
 ```
-
-| Country              | Medal Tally | GDP per Capita | GDP Rank | Medals Rank | Rank Difference |
-|:-----------------|----------:|------------:|-------:|----------:|-------------:|
-| Ethiopia             |          84 |       619.1694 |      113 |        37.0 |            76.0 |
-| Kenya                |         158 |      1376.7128 |      102 |        29.0 |            73.0 |
-| Ukraine              |         218 |      2114.9547 |       95 |        24.0 |            71.0 |
-| China                |        1002 |      8027.6838 |       62 |         7.0 |            55.0 |
-| India                |          50 |      1598.2590 |       99 |        44.0 |            55.0 |
-| Russia               |         978 |      9092.5805 |       57 |         9.0 |            48.0 |
-| Uganda               |          14 |       705.2926 |      112 |        66.5 |            45.5 |
-| Zimbabwe             |          18 |       924.1438 |      108 |        63.0 |            45.0 |
-| Egypt                |          52 |      3614.7468 |       87 |        43.0 |            44.0 |
-| Indonesia            |          48 |      3346.4870 |       89 |        45.0 |            44.0 |
-| Bulgaria             |         406 |      6993.4774 |       63 |        20.0 |            43.0 |
-| Uzbekistan           |          38 |      2132.0704 |       94 |        52.0 |            42.0 |
-| Gabon                |           2 |      8266.4456 |       60 |       104.0 |           -44.0 |
-| Israel               |          10 |     35728.0935 |       23 |        70.0 |           -47.0 |
-| Saudi Arabia         |           4 |     20481.7453 |       33 |        88.0 |           -55.0 |
-| Mauritius            |           1 |      9252.1107 |       54 |       114.0 |           -60.0 |
-| Hong Kong\*          |           6 |     42327.8400 |       16 |        78.0 |           -62.0 |
-| Iceland              |           6 |     50173.3399 |       11 |        78.0 |           -67.0 |
-| Luxembourg           |           9 |    101449.9682 |        1 |        72.0 |           -71.0 |
-| Barbados             |           1 |     15429.3405 |       41 |       114.0 |           -73.0 |
-| Cyprus               |           2 |     23242.8401 |       29 |       104.0 |           -75.0 |
-| United Arab Emirates |           3 |     40438.7629 |       19 |        96.0 |           -77.0 |
-| Kuwait               |           2 |     29300.5756 |       26 |       104.0 |           -78.0 |
-| Singapore            |           4 |     52888.7447 |        8 |        88.0 |           -80.0 |
-| Bahrain              |           1 |     22600.2141 |       31 |       114.0 |           -83.0 |
-| Qatar                |           4 |     73653.3944 |        4 |        88.0 |           -84.0 |
-
-Who Outperforms Economic Expectations in the Olympics?
 
 In this function we perform similar operation to the previous function,
 but we then continue to rank countries by total medal tally and also by
@@ -409,24 +329,22 @@ GDP per capita. Once we have both ranks we can subtract them from each
 other to form a column that displays the difference in ranking between
 GDP per capita and medal tally. This difference in rankings is then
 filtered to just include the extremes and is then printed to a table.
-The level of extremity can be decided by adjusting *top_bot_size*
-(default of *top_bot_size* is set to 41).
+The level of extremity can be decided by adjusting \#*top_bot_size*
+(default of \#*top_bot_size* is set to 41).
 
 ``` r
-weight_plot <- C_Weight_Plot(Olympic_df)
-weight_plot
+#weight_plot <- C_Weight_Plot(Olympic_df)
+#weight_plot
 ```
-
-![](README_files/figure-markdown_github/unnamed-chunk-23-1.png)
 
 This function focuses specifically on the sport of weightlifting at the
 Olympics. I then filter by weightlifting and calculate the total medal
 tallies for all countries in weightlifting. I then take the top
-*no_countries* (where *no_countries* can be set, but the default is 10).
-I then calculate and plot the cumulative medal over time for the top
-countries and draw a line plot with geometric points. I add a vertical
-line at the year 1967 as this is when performance enhancing drugs was
-outlawed.
+\#*no_countries* (where \#*no_countries* can be set, but the default is
+10). I then calculate and plot the cumulative medal over time for the
+top countries and draw a line plot with geometric points. I add a
+vertical line at the year 1967 as this is when performance enhancing
+drugs was outlawed.
 
 ## Question 5
 
