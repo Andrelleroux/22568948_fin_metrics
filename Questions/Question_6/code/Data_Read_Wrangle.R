@@ -12,7 +12,7 @@ Data_Read_Wrangle <- function(dataloc = ""){
         group_by(Name) %>%
         filter(n_distinct(year(date)) >= 3) %>%
         mutate(Year_Month = format(date, "%Y%B")) %>%
-    #Get last dy of each month
+    #Get last day of each month
         arrange(date) %>%
         group_by(Name, Year_Month) %>%
         filter(date == last(date)) %>%
