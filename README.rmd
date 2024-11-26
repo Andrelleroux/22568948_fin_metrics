@@ -235,4 +235,13 @@ The above code created the Texevier document and calls the available functions f
 
 The above function should in theory connect to an external database, however in this specific context I could not get it to work. It gives me an error saying that the object 'out' could not be found. Further work was done to try and get access via a dev.sql file that is not included here.
 
+## Question 6
+
+```{r, results='hide', message=FALSE, warning=FALSE}
+#Firstly Create the Texevier project
+#Texevier::create_template_html(directory = glue::glue("{getwd()}/"), template_name = "Question_6")
+
+list.files('Question_5/code/', full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
+```
+
 
