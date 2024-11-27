@@ -87,15 +87,18 @@ Cum_Returns_Comp <- function(){
                   by = c("date", "Tickers"))
 
     df_Portf_SWIX <-
-        df_port_return_SWIX %>% group_by(date) %>% summarise(PortfolioReturn = sum(Return*weight, na.rm =TRUE)) %>%
+        df_port_return_SWIX %>% group_by(date) %>%
+        summarise(PortfolioReturn = sum(Return*weight, na.rm =TRUE)) %>%
         filter(PortfolioReturn != 0)
 
     df_Portf_ALSI <-
-        df_port_return_ALSI %>% group_by(date) %>% summarise(PortfolioReturn = sum(Return*weight, na.rm =TRUE)) %>%
+        df_port_return_ALSI %>% group_by(date) %>%
+        summarise(PortfolioReturn = sum(Return*weight, na.rm =TRUE)) %>%
         filter(PortfolioReturn != 0)
 
     Joined_rets<-
-        left_join(df_Portf_ALSI %>% rename("ALSI"= "PortfolioReturn"), df_Portf_SWIX %>% rename("SWIX"= "PortfolioReturn"), by = "date") %>%
+        left_join(df_Portf_ALSI %>% rename("ALSI"= "PortfolioReturn"), df_Portf_SWIX %>%
+                      rename("SWIX"= "PortfolioReturn"), by = "date") %>%
         gather(Index, Returns, -date)
 
     Comparing_Index <- Joined_rets %>%

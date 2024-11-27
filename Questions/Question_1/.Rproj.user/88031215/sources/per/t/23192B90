@@ -3,7 +3,7 @@
     "path": "~/Masters_2024_stuff/Financial_Econometrics/Fin_Metrics_Exam/22568948_fin_metrics/Questions/Question_1/code/Rolling_ret_plot.R",
     "project_path": "code/Rolling_ret_plot.R",
     "type": "r_source",
-    "hash": "900134177",
+    "hash": "1103662922",
     "contents": "",
     "dirty": false,
     "created": 1732525314737.0,
@@ -13,15 +13,15 @@
         "tempName": "Untitled1",
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "14,44",
-        "scrollLine": "3"
+        "cursorPosition": "6,64",
+        "scrollLine": "0"
     },
     "folds": "",
-    "lastKnownWriteTime": 1732529742,
+    "lastKnownWriteTime": 1732665212,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1732529742905,
+    "last_content_update": 1732665212939,
     "read_only": false,
     "read_only_alternatives": []
 }

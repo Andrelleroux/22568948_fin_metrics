@@ -63,7 +63,8 @@ Read_Combine_Data <- function(){
 
     BM_join <- BM %>%
         filter(date > ymd(20040101)) %>%
-        rename("Fund" = "Tickers")
+        mutate(Fund = "BM") %>%
+        select(date, Returns, Fund)
 
     AI_join <- AI_Fund %>%
         filter(date > ymd(20040101)) %>%
@@ -74,5 +75,5 @@ Read_Combine_Data <- function(){
 
     Combined_df <- bind_rows(ASISA_join, BM_join, AI_join)
 
-   return Combined_df
+   return(Combined_df)
 }
