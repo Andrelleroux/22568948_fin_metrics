@@ -50,7 +50,7 @@ Combined_df
 
 ##### Table 1: {-}
 
-```{r, results='hide', message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE}
 plot_Table <- Current_Opt(Combined_df)
 plot_Table
 ```
@@ -66,9 +66,9 @@ plot_HistOpt <- Port_Rebalancing(Combined_df)
 plot_HistOpt
 ```
 
-When looking at historical rebalancing it appears that the current optimal weights have remained optimal for the past seven years.
+When looking at historical rebalancing it appears that there have been shifts between assets at certain rebalancing days.
 
 # Conclusion {-}
 
-When designing an optimal portfolio for traded global indexes we find a very stable equilibrium weighting vector that provides the optimal mean-variance tradeoff
+When designing an optimal portfolio for traded global indexes we find an equilibrium weighting vector that provides the optimal mean-variance trade off within the given constraints.
 
