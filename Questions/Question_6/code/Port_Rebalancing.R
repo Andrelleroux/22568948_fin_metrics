@@ -31,11 +31,13 @@ Port_Rebalancing <- function(data = Combined_df){
     Weights_df <- Weights_df %>% rename("date" = "RebalancingDate") %>%
         select(date, Name, Weight)
 
+    sink(tempfile())
     Plot_1 <- Weights_df %>% tbl_xts(., cols_to_xts = Weight, spread_by = Name) %>%
         .[endpoints(.,'months')] %>% chart.StackedBar(main = "Optimal Weights of Portfolio",
                                                       ylab = "Weight (%)",
                                                       xlab = "Date",
                                                       col = c(brewer.pal(4, "Set3")))
+    sink()
 
     return(Plot_1)
 

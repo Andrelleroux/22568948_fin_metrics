@@ -289,7 +289,7 @@ Combined_df
 
 This function combines the MAA and msci databases while making sure that stocks have at least 3 years of returns to be eligible and calculating the log return on the price.
 
-```{r, results='hide', message=FALSE, warning=FALSE}
+```{r, message=FALSE, warning=FALSE}
 plot_Table <- Current_Opt(Combined_df, Markdown = TRUE)
 plot_Table
 ```
@@ -298,7 +298,7 @@ This function makes use of another function called Optimise_Portfolio_ROI. In th
 
 The Current_Opt function is then used to produce the optimal weights for the latest date, which is then displayed in a table.
 
-```{r, results='hide', message=FALSE, warning=FALSE}
+```{r, results='hide', message=FALSE, warning=FALSE, echo=FALSE}
 plot_HistOpt <- Port_Rebalancing(Combined_df)
 plot_HistOpt
 ```

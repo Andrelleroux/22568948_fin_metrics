@@ -3,7 +3,7 @@
     "path": "~/Masters_2024_stuff/Financial_Econometrics/Fin_Metrics_Exam/22568948_fin_metrics/README.rmd",
     "project_path": "README.rmd",
     "type": "r_markdown",
-    "hash": "1754778239",
+    "hash": "704373201",
     "contents": "",
     "dirty": false,
     "created": 1732367518556.0,
@@ -12,15 +12,15 @@
     "properties": {
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "305,313",
-        "scrollLine": "304"
+        "cursorPosition": "291,5",
+        "scrollLine": "286"
     },
     "folds": "",
-    "lastKnownWriteTime": 1732723238,
+    "lastKnownWriteTime": 1732725589,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1732723238073,
+    "last_content_update": 1732725589903,
     "read_only": false,
     "read_only_alternatives": []
 }

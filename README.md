@@ -475,6 +475,24 @@ plot_Table <- Current_Opt(Combined_df, Markdown = TRUE)
 plot_Table
 ```
 
+| Assets                      | Weights | Category       |
+|:----------------------------|--------:|:---------------|
+| Asia_dollar_Idx             |    0.00 | Other          |
+| Bbg_EUCorpCred_Unhedged_USD |    0.00 | Bonds & Credit |
+| Bbg_EuroBonds_UnhedgedEUR   |    0.00 | Bonds & Credit |
+| Bbg_GlBonds_HedgedUSD       |    0.00 | Bonds & Credit |
+| Bbg_GlCorpCred_Hedged_USD   |    0.00 | Bonds & Credit |
+| Bbg_USBonds_UnhedgedUSD     |    0.00 | Bonds & Credit |
+| Bbg_USCorpCred_Unhedged_USD |    0.25 | Bonds & Credit |
+| Commod_Idx                  |    0.15 | Other          |
+| Dollar_Idx                  |    0.00 | Other          |
+| MSCI_ACWI                   |    0.20 | Equities       |
+| MSCI_Jap                    |    0.00 | Equities       |
+| MSCI_RE                     |    0.00 | Equities       |
+| MSCI_USA                    |    0.40 | Equities       |
+
+Optimal Portfolio Weights in 2021
+
 This function makes use of another function called
 Optimise_Portfolio_ROI. In this function I calculate the estimates for
 Mu and Sigma (forr Sigma I used the Ledoit-Wolfe method). I then create
@@ -485,15 +503,7 @@ mean-variance tradeoff solution and get the corresponding weights.
 The Current_Opt function is then used to produce the optimal weights for
 the latest date, which is then displayed in a table.
 
-``` r
-plot_HistOpt <- Port_Rebalancing(Combined_df)
-```
-
 ![](README_files/figure-markdown_github/unnamed-chunk-34-1.png)
-
-``` r
-plot_HistOpt
-```
 
 In this function I get the rebalancing dates as quarters and run a for
 loop where I run the Optimise_Portfolio_ROI each time with data looking
