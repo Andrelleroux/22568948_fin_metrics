@@ -37,5 +37,7 @@ Port_Rebalancing <- function(data = Combined_df){
                                                       xlab = "Date",
                                                       col = c(brewer.pal(4, "Set3")))
 
+    return(Plot_1)
+
 
 }
