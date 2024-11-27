@@ -1,0 +1,49 @@
+---
+title: "Portfolio Analysis"
+author: "André le Roux"
+date: "November 2024"
+output: powerpoint_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE)
+pacman::p_load(RcppRoll, tidyverse)
+
+setwd("~/Masters_2024_stuff/Financial_Econometrics/Fin_Metrics_Exam/22568948_fin_metrics/Questions/Question_1")
+list.files('code/', full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
+```
+
+\newpage
+
+### Analysis of First Moment
+
+```{r, results='hide'}
+
+Combined_df <- Read_Combine_Data()
+
+Plot_1 <- Rolling_ret_plot(dataset = Combined_df)
+Plot_1
+
+```
+
+### Analysis of Second Moment
+
+```{r}
+Plot_2 <- Rolling_Vol_plot(Combined_df)
+Plot_2
+```
+
+### Fund Specific Distributions
+
+```{r}
+Plot_3 <- Return_Distributions(Combined_df)
+Plot_3
+```
+
+### Distributions Across All Active Funds
+
+```{r}
+Plot_4 <- Tot_Dist()
+Plot_4
+```
+

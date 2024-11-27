@@ -1,0 +1,27 @@
+library(tidyverse)
+library(RcppRoll)
+
+Rolling_ret_plot <- function(dataset = Combined_df){
+
+    #Add function from prac for converting from annual to monthly fees
+    feeconverter <- function(x, Ann_Level) (1+x)^(1/Ann_Level)-1
+
+    Plot_1 <- Combined_df %>%
+        mutate(Net_Return = if_else(Fund %in% c("Q3","Median", "Best", "Worst", "Q1"),
+               Returns - feeconverter(150*1e-4, 12), Returns)) %>%
+        group_by(Fund) %>%
+        mutate(Roll_Return = roll_prod(1 + Returns, 36, fill = NA, align = "right")^(12/36) - 1) %>%
+        group_by(date) %>%
+        filter(any(!is.na(Roll_Return))) %>% ggplot() +
+        geom_line(aes(date, Roll_Return, color = Fund, size = Fund), alpha = 0.8) +
+        scale_size_manual(values = c("Best" = 0.3, "Worst" = 0.3,
+                                     "Q1" = 0.3, "Q3" = 0.3,
+                                     "AI" = 1.2, "BM" = 1.2,
+                                     "Median" = 1.2))+
+        labs(title = " Rolling 3 Year Annualized Returns",
+             subtitle = "", x = "", y = "Rolling 3 year Returns "
+        ) + fmxdat::theme_fmx()
+
+    return(Plot_1)
+
+}

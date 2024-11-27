@@ -1,0 +1,106 @@
+---
+title: "Comparison of ALSI and SWIX Indexes"
+author: "André le Roux"
+date: "November 2024"
+# date: "`r Sys.Date()`"
+bibliography: Tex/ref.bib       # Do not edit: Keep this naming convention and location.
+output:
+  pagedown::html_paged:
+    # template: wp_paged.html
+    # css: ['wp.css', 'wp-fonts.css', 'wp-page.css']
+    css: ["Template/default-fonts-Texevier.css", "Template/default-page-Texevier.css", "Template/default-Texevier.css"]
+    csl: Template/harvard-stellenbosch-university.csl # referencing format used.
+    template: ["Template/paged-Texevier.html"]
+
+    toc: true
+    # change to true for a self-contained document, but it'll be a litte slower for Pandoc to render
+    self_contained: TRUE
+abstract: |
+    The aim of this research report is threefold, to analyse the performance of 
+    the indices across sectors and market cap sizes. Secondly, to look at the
+    return profiles of the indices at for different performances of the Rand. 
+    Lastly, to apply capping and analyse the corresponding impact on returns.
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE)
+pacman::p_load(rmsfuns, tbl2xts, RcppRoll, RColorBrewer, kableExtra, tidyverse)
+
+setwd("~/Masters_2024_stuff/Financial_Econometrics/Fin_Metrics_Exam/22568948_fin_metrics/Questions/Question_3")
+list.files('code/', full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
+```
+
+\newpage
+
+# Data {-}
+
+The data consists of information about stocks, corresponding weights and returns from the ALSI and SWIX. There is supplementary data from the monthly USD/ZAR exchange rate and the re-balancing dates of the portfolios. 
+
+# Analysis  {-}
+
+The analysis that is performed first is to plot the cumulative returns of the two indices to comapre the returns from the indices over the time frame.
+
+```{r, results='hide'}
+
+Joined_df <- Contributions_Data()
+
+```
+##### Figure 1: {-}
+
+```{r, fig.height = 8, fig.width = 9}
+
+plot_Comp <- Cum_Returns_Comp()
+plot_Comp
+
+```
+
+From _figure 1_ we can see that the index with the higher returns depends on the time, as the SWIX is higher during the range from 2015-2018, but after 2021 the gap has been widening in favour of the ALSI.
+
+Next I look at the rolling 2 year contribution of different sectors to the total returns of each index, this allows me to look t differences in behaviour regarding sector investment.
+
+##### Figure 2: {-}
+
+```{r}
+plot_Sector <- Sector_Contributions_Plot(Joined_df)
+plot_Sector
+```
+
+From _figure 2_ we can see that the general movement of contributions between the indices are very similar. However, there are subtle differences at points, such as resources having a more pronounced positive contribution to the ALSI in 2019. While the rolling negative contribution of financials during 2021 is more pronounced for the SWIX than the ALSI.
+
+Now I conduct the same analysis for the contributions of different market cap sizes to the index returns.
+
+##### Figure 3: {-}
+
+```{r}
+Size_plot <- Size_Contributions_Plot(Joined_df)
+Size_plot
+```
+
+_Figure 3_ gives similar results to the previous figure, where general movements are similar between the indices, but more precise changes are different. Such as large market cap stocks having a larger rolling positive contribution to the ALSI during 2016.
+
+Next I look at a plot that compares the monthly volatility of the returns of the indices with the yearly volatility of the USD/ZAR exchange rate, this is due to only monthly data being readily available.
+
+##### Figure 4: {-}
+
+```{r}
+Vol_plot <- Strat_Perf_Table(Joined_df)
+Vol_plot
+```
+
+Unfortunately, the lack of high frequency data makes the interpretation more difficult. However, there appears to be a slight correlation between the volatility of the exchange rate and the volatilities of the indices. We can however see that the the standard deviations of the portfolios are consistently higher than exchange rate standard errors.
+
+Next I compare the cumulative returns of each index at a uncapped, capped at 5% and capped at 10% level. This allows us to look at the impact of capping on index performances.
+
+##### Figure 5: {-}
+
+```{r}
+Cap_plot <- Capping_Effect()
+Cap_plot
+```
+
+The graphs in _figure 5_ give a good visual represenation of the impact of capping on the cumulative returns of the indices. A cap of 10% has a relatively small impact as not a lot of stocks are weighted that high. However, the impact of a 5% weighting has a larger difference in reducing returns. The differences between capping is markedly different between indiced with the 5% cap having a significantly smaller effect on the SWIX than the ALSI. 
+
+# Conclusion {-}
+
+The functional differences between the ALSI and the SWIX is small, however the ALSI has performed better in recent times and is less effected by industrials. Implementing capping would also have a more pronounced negative impact on the returns of the ALSI than the returns of the SWIX.   
