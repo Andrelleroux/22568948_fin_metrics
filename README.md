@@ -8,7 +8,7 @@ that I wrote to complete it.
 ``` r
 rm(list = ls()) # Clean your environment:
 gc()
-setwd("C:/Users/andre/OneDrive/Documents/Masters_2024_stuff/Financial_Econometrics/Fin_Metrics_Exam/22568948_fin_metrics")
+setwd("~/Masters_2024_stuff/Financial_Econometrics/Fin_Metrics_Exam/22568948_fin_metrics")
 
 library(tidyverse)
 ```
@@ -20,13 +20,26 @@ functions of this project:
 
 -   tidyverse (includes ggplot2, dplyr)
 -   Texevier
--   
+-   fmxdat
+-   RcppRoll
+-   PerformanceAnalytics
+-   tbl2xts
+-   rmgarch
+-   rugarch
+-   ROI
+-   ROI.plugin.quadprog
+-   gt
+-   kableExtra
+-   zoo
+-   RColorBrewer
+-   flextable
+-   ggExtra
 
 ## Question 1
 
 It is firstly important that the working directory of the project is
 properly allocated as the directory is used to create folders and
-projects. All Texevier lines of code was commented as the projects had
+projects. All Texevier lines of code was commented as the projects have
 already been created.
 
 ``` r
@@ -34,70 +47,82 @@ already been created.
 #Texevier::create_template_html(directory = glue::glue("{getwd()}/"), template_name = "Question_1")
 
 #Secondly I fetch the functions that I wrote from the code folder in Question 1
-list.files('Question_1/code/', full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
+list.files(paste0(getwd(), "/Questions/Question_1/code/"), full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
 ```
 
 The first command that is run is to create a Texevier HTML project under
 the title Question_1 wherein I complete the question. The second is to
-fetch the functions that I create while writing the report for question
-1.
+fetch the functions that I create while creating the PowerPoint for
+question 1.
 
 ``` r
-#Baby_names_df <- Data_Reading("Question_1/data/Baby_Names_By_US_State.rds")
+Combined_df <- Read_Combine_Data()
 ```
 
-This function simply read the data from the given rds file into a
-dataframe that can be used in the report. No data transformations take
-place in this function.
+This function aims to impose some of the constraints from the question
+and combine the data together in a meaningful way. Specifically look for
+ACTIVE managers, then pull 5 active funds to compare to (Worst, Q1,
+Median, Q3, Best). Finally combine these with the AI and BenchMark
+datasets to create a combined dataset.
 
 ``` r
-#plot_corr <- Corr_plot(Baby_names_df)
-#plot_corr
+Plot_1 <- Rolling_ret_plot(dataset = Combined_df)
+Plot_1
 ```
 
-This function transforms the base dataframe to a format that can be used
-to plot the Spearman correlation over time. The first step is to rank
-the most popular names from each year across the United States. This is
-done by grouping by year and name and them summarising to get to get the
-totals. Then we arrange the totals in descending order according to the
-totals of each name in each year. We can then rank by group to get the
-ranking in each year.
+![](README_files/figure-markdown_github/unnamed-chunk-4-1.png)
 
-Once we have this we can rename the rank variable and mutate the year to
-be *no_Years* years earlier (where *no_Years* can be set, default is 3).
-We can then left_join the dataframe with the renamed and mutated
-dataframe to get the rank of the names in the start year and the later
-year. We then arrange by the rank in the start year and use “slice_head”
-to get the top *no_top* names per year (where *no_top* can be set, the
-default is 25). Correlation is then calculated between the ranks of the
-names in the start year and their rank x years later, the Spearman
-method is used.
-
-This is then plotted using a geometric line graph to show the changes in
-correlation over time, geometric points are added to highlight the exact
-points in time and finally a geom_smooth plot is used to show a smoothed
-mean across time with a confidence interval of *conf_level* (where
-*conf_level* can be set, the default is 0.95).
+This function takes our previously created data frame as an argument and
+plots the rolling returns of different funds. Firstly a fee is placed on
+the actively managed funds, using the feeconverter function from the
+practicals to convert to monthly fees. I can then use the roll_prod
+function on my returns to get a rolling average return for the funds,
+this is set at 3 years and annualised. Missing values are removed and
+the funds of interest are made bolder in the geom_line plot for clarity.
 
 ``` r
-#plot_ridge <- Ridge_plot(Baby_names_df)
-#plot_ridge
+Plot_2 <- Rolling_Vol_plot(Combined_df)
+Plot_2
 ```
 
-This first step in this function is to take the same base dataframe and
-group by name and summarise by count to get the total count of babies
-per baby name. Using arrange and head we can get the top *no_names* most
-used names (where *no_names* can be set, default is 15).
+![](README_files/figure-markdown_github/unnamed-chunk-5-1.png)
 
-Then I can group by Year and Name to summarise by count and filter for
-the top *no_names* names in each year. I then use the ggridges package
-to plot a density ridge plot for the popularity of the most popular
-names over time. Using alpha = 0.5 to make the graphs more see through.
+This function does a very similar thing to the previous function.
+However this time the rolling function is changed to roll_sd to get the
+3 year rolling standard deviation as a measure of volatility to compare
+between funds. Graphed in the same manner as previous function.
+
+``` r
+Plot_3 <- Return_Distributions(Combined_df)
+Plot_3
+```
+
+![](README_files/figure-markdown_github/unnamed-chunk-6-1.png)
+
+This function graphs the density of the three year rolling annualised
+returns for three specific funds, namely the AI, benchmark and median
+funds, this is due to the density plot for 7 funds being much too
+clattered. Fees are also taken into consideration for the median fund.
+The means for the return series is also calculated and added to provide
+more information.
+
+``` r
+Plot_4 <- Tot_Dist()
+Plot_4
+```
+
+![](README_files/figure-markdown_github/unnamed-chunk-7-1.png)
+
+This function changes from the previous by having the density of the
+returns being for all active funds, rather than just the one median
+fund, fees are applied to it and is represented by the different fills
+to show visually the impact of fees. Our AI fund is added for
+comparison. These remain 3 year rolling average return densities.
 
 ## Question 2
 
 This section explains the coding behind question 2 of the exam. The
-following code was used to create the project and to fetch the function
+following code was used to create the project and to fetch the functions
 to be used in Question 2 from the code folder.
 
 ``` r
@@ -105,265 +130,373 @@ to be used in Question 2 from the code folder.
 #Texevier::create_template_html(directory = glue::glue("{getwd()}/"), template_name = "Question_2")
 
 #Secondly I fetch the functions that I wrote from the code folder in Question 2
-list.files('Question_2/code/', full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
+list.files(paste0(getwd(), "/Questions/Question_2/code/"), full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
 ```
 
 ``` r
-#Musictaste_df <- Inputting_Data(data_root = "Question_2/data/")
+Joined_df <- Data_Read_Manipulate()
+
+Joined_Indiv <- Joined_Ind_df()
 ```
 
-This function reads the csv files for Metallica and Coldplay and then
-combines them by binding their rows.
+The Data_Read_Manipulate function focused specifically on replicating
+the graphic and calculated the returns for the hedged portfolio and
+combined it with the USD/ZAR exchange rate. The portfolio was created by
+the weights given, such that local equities are 42%, local bonds are
+28%, global equities are 18% and global bonds are 12%.
+
+The Joined_ind_df function however focuses on a more loose final data
+structure that includes a hedged portfolio, an unhedged portfolio and a
+fully hedged international portfolio. These are the required funds for
+recreating the table. Fees are deducted for hedging as is stated in the
+graph, we deduct at 200bp converted to monthly.
 
 ``` r
-#Filtered_df <- Data_Filtering(Musictaste_df)
+Plot_Recreate <- Recreate_Plot(Joined_df)
+Plot_Recreate
 ```
 
-This functions alters the base dataframe to a more usable version.
-Firstly a variable is created that defines which band plays which songs.
-Then differently names album and duration variables are combined
-together. Then we filter out all songs that include “Live” or “Edit” in
-the title and remove all albums that have “Deluxe”, “Live” or “Remaster”
-in the name, I also add back one original song that included “Live” in
-the title.
+![](README_files/figure-markdown_github/unnamed-chunk-10-1.png)
 
-We select the variables we want and scale the relevant musical features
-to be on a scale between 0-100, except for tempo.
+This plot recreates the graphic from the given article with slight
+differences in numbers and semantics. The density plots along the side
+is added with ggMarginal and the numbers and labels with gglabel. The
+number of dots in each quadrants was counted before being divided by the
+total to get percentages.
 
 ``` r
-#plot_box <- Plot_Pop_Box(Filtered_df)
-#plot_box
+Table_Recreate <- Recreate_Table(Joined_Indiv, Markdown = TRUE)
+Table_Recreate
 ```
 
-In the above function I firstly group by album and count the number of
-songs. This allows me to filter by albums that have more than *no_songs*
-songs (where *no_songs* can be set, default is 1). Secondly I then group
-by album and filter according to the albums that have more than
-*no_songs* songs. I then plot a box plot for each album, ordering the
-x-axis according to release date. A jitter plot is added to show the
-individual songs, but with a low alpha and size to not detract from the
-box plot.
+|                                       | Internation Hedged | Hedged Portfolio | Unhedged Portfolio |
+|:----------------------------|--------------:|-------------:|--------------:|
+| Annualized Return                     |             0.0383 |           0.0794 |             0.1101 |
+| Annualized Standard Deviation         |             0.1058 |           0.0983 |             0.0841 |
+| Average Drawdown                      |             0.0694 |           0.0444 |             0.0281 |
+| Adjusted Sharpe ratio (Risk free = 0) |             0.3444 |           0.7038 |             1.1281 |
+
+USD-ZAR Fund Performance
+
+In this function I use the tbl2xts and PerformanceAnalytics package to
+calculate interesting metrics about the portfolios in order to compare
+them to one another and determine the “better” portfolio between hedging
+and unhedged. I then convert back to a tibble for a table and input an
+if statement as the format for a markdown_github table is not the same
+as for a knit to html markdown.
 
 ``` r
-#plot_hist <- Plot_Histogram(Filtered_df)
-#plot_hist
+Plot_Vol <- Roll_Vol(Joined_Indiv)
+Plot_Vol
 ```
 
-For this plot I first group by the band and summarise all numeric
-columns by mean. I then select the Band and all musical features and
-pivot the dataframe to a longer version with the musical features as
-rows and the bands as columns. I can then make a grouped bar plot to
-compare the musical features for the different bands. I use position =
-“dodge” to have spaces between the bar plots and stat = “identity” to
-use the values in the dataframe rather than the count() function.
+![](README_files/figure-markdown_github/unnamed-chunk-12-1.png)
 
-``` r
-#Supp_df <- Preparing_Supplementary(data_root = "Question_2/data/")
-```
-
-This function read in and adapts the supplementary datasets of Spotify
-and Billboard to a combined functional dataset. Firstly Spotify is read
-in, duration is adapted and variables of interest are selected.
-
-Secondly, the Billboard rds file is read in and filtered to be songs
-that achieved a peak rank in a week of 20 or better. We then select
-variables of interest and group by song and artist. This allows us to
-arrange by date across the groups and keep the last week so that we have
-unique entries for each song on their last week in the chart.
-
-Lastly we can join these dataframes together by song and artist, filter
-away the Billboard entries that do not have Spotify equals, we summarise
-across musical features and mutate the relevant features to again be on
-a scale from 0-100. We now have a dataset of the musical features of
-popular music.
-
-``` r
-#Comparison_plot <- Comparing_Features(Filtered_df, Supp_df)
-#Comparison_plot
-```
-
-In this function we firstly rename the relevant variables in the first
-dataframe to appropiately leftjoin with the supplementary dataframe and
-pivot the table to have the musical features as columns. This allows me
-to plot a violin graph for each Band and popular music, which is then
-facet wrapped with the different musical features. Y scales are set to
-free and alpha is low for interpretability.
+Given that we are discussing the concept of long-term strategies I
+estimate a 5 year annualised rolling standard deviation for the hedged
+and unhedged portfolios and compare them over time.
 
 ## Question 3
+
+This section explains the coding behind question 3 of the exam. The
+following code was used to create the project and to fetch the functions
+to be used in Question 3 from the code folder.
 
 ``` r
 #Firstly Create the Texevier project
 #Texevier::create_template_html(directory = glue::glue("{getwd()}/"), template_name = "Question_3")
 
 #Secondly I fetch the functions that I wrote from the code folder in Question 3
-list.files('Question_3/code/', full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
+list.files(paste0(getwd(), "/Questions/Question_3/code/"), full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
 ```
-
-The above code fetches the functions from the code folder under question
-3.
 
 ``` r
-#read_Data <- Data_Read(data_root = "Question_3/data/")
+Joined_df <- Contributions_Data()
 ```
 
-This function reads the ‘Financial Allocations’ and ‘Financial
-Commitments’ csv files and then joins them together according to
-country.
+This function takes the ALSI dataset and uses the Safe_Return.portfolio
+command to get the value, weight and contribution of the different
+stocks in the portfolios on all days. In order to this I first get
+weight and returns xts dataset to feed into the command. Once this is
+done I create seperate data frames for the weights, contributions and
+value before adding them together again using left join depending on
+whether it is the ALSI or SWIX portfolio. I can then rbind the two
+portfolios to get a combined dataframe that contains the weights, value,
+returns and contribution for each stock at each point in time.
 
 ``` r
-#Map_df <- Make_Map_Data(read_Data)
+plot_Comp <- Cum_Returns_Comp()
+plot_Comp
 ```
 
-In order to construct a geographical map of Europe we first create a
-dataframe using the ne_countries command from the rnaturalearth package
-that returns a dataset of polygons by country. The next step is to
-create a second dataframe which contains the data from our Data_Read()
-function, we then add a variable that calculates the commitment as a
-percentage of GDP.
+![](README_files/figure-markdown_github/unnamed-chunk-15-1.png)
 
-To combine the dataframes we first mutate the variable containing
-country names to be called the same name and deal with one fringe case
-where the names for the same countries did not match between dataframes.
-We then merge the two dataframes by country names.
+This function calculates the cumulative returns for the SWIX and ALSI
+and plots them on the same graph in order to compare them.
 
 ``` r
-#map_plot <- Create_Map(Map_df)
-#map_plot
+plot_Sector <- Sector_Contributions_Plot(Joined_df)
+plot_Sector
 ```
 
-The Create_Map() function firstly takes the polygons from the merged
-dataframe and links them to points on the map, these points are then
-changed into coordinates which are placed into the merged dataset. This
-data can then be used to plot a ‘simple feature’ graph that is filled
-according to the level of commitments. The limits of the coordinates are
-set to focus on Europe as the Australian news desk asked for a focus on
-Europe.
+![](README_files/figure-markdown_github/unnamed-chunk-16-1.png)
+
+This function uses the contributions calculated by the
+Contributions_Data function and groups them by date, index and sector to
+produce the total contribution by a sector to returns at a specific
+date. This value is then taken to a rolling average of 2 years after
+transforming to monthly data. This is then plotted with colour being
+determined by sector and being facet wrapped by Index.
 
 ``` r
-#table <- Create_Table(read_Data, Markdown = TRUE)
-#table
+Size_plot <- Size_Contributions_Plot(Joined_df)
+Size_plot
 ```
 
-The Create_Table() function takes the initial dataset and firstly
-removes missing values, then I calculate the total commitments and
-allocations for each country by adding their total individual
-commitments/allocations and their commitments/allocations made through
-the EU. Then I subtract the total allocations from the total commitments
-to calculate the difference in what was promised and what is given.
+![](README_files/figure-markdown_github/unnamed-chunk-17-1.png)
 
-I then arrange by the difference and filter the values so that only the
-extremes on either side shows up. The dataframe is then piped to a kable
-function which turns it into a table.
+This function is very similar to the previous one, but instead groups by
+whether a stock is large, small or mid cap. There were isolated
+instances of NA values. Due to the lack of following large time spans of
+NA values the NA values were filtered out.
+
+``` r
+Vol_plot <- Strat_Perf_Table(Joined_df)
+Vol_plot
+```
+
+![](README_files/figure-markdown_github/unnamed-chunk-18-1.png)
+
+This function adds the monthly USD/ZAR exchange rate, but due to being
+monthly values I estimated a yearly standard deviation for the exchange
+rate and plot that next to the monthly standard deviation (base on daily
+data) of the standard deviation of the ALSI and SWIX. The lack of a
+smaller time frame for monthly USD/ZAR is not ideal, but still provides
+some insight.
+
+``` r
+Cap_plot <- Capping_Effect()
+Cap_plot
+```
+
+![](README_files/figure-markdown_github/unnamed-chunk-19-1.png)
+
+For the above function the rebalance dates of the function is taken and
+filtered for in the ALSI dataset. On these dates the
+Proportional_Cap_Foo function from the practicals is used to limit the
+maximum weight that a stock can be. This data frame is then turned into
+an xts file to run Safe_Return.portfolio and calculate the cumulative
+returns for the specific current case. This is done 6 times, once each
+for unweighted, 5% capped and 10% capped. This is one for both Indexes
+seperately. Once this is done all seperate data frames are converted
+back to tibbles and combined to graph the above plot of the cumulative
+returns at different caps.
 
 ## Question 4
+
+This section explains the coding behind question 4 of the exam. The
+following code was used to create the project and to fetch the functions
+to be used in Question 4 from the code folder.
 
 ``` r
 #Firstly Create the Texevier project
 #Texevier::create_template_html(directory = glue::glue("{getwd()}/"), template_name = "Question_4")
 
 #Secondly I fetch the functions that I wrote from the code folder in Question 4
-list.files('Question_4/code/', full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
+list.files(paste0(getwd(), "/Questions/Question_4/code/"), full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
 ```
-
-The first chunk fetched the function from where they are stored in the
-code folder under Question_4.
 
 ``` r
-#Olympic_df <- Entering_Data("Question_4/data/")
+Risk_table <- Tracking_Error_Table(Markdown = TRUE)
+Risk_table
 ```
 
-The first function (Entering_Data()) reads the data out of their
-respective rds files, one for the Summer Olympics, one for the Winter
-Olympics and one for the GDP per country. Both Summer and Winter
-datasets are appended with a column stating whether it is the Winter or
-Summer Olympics. These two are binded together by rows before being left
-joined by the GDP dataset by the three letter codes.
+| Measures                     |     Result |
+|:-----------------------------|-----------:|
+| Semi Deviation               |  0.0330000 |
+| Loss Deviation               |  0.0298000 |
+| Downside Deviation (Rf = 0%) |  0.0281000 |
+| Maximum Drawdown             |  0.2129000 |
+| Historical VaR (95%)         | -0.0682000 |
+| Historical ES (95%)          | -0.0905000 |
+| Tracking Error to Benchmark  |  0.0498373 |
+
+Relative Risk Measures
+
+The above function takes the returns from the portfolio and benchmark
+and calculates the tracking error (annualised) and uses
+PerformanceAnalytics for more relative risk measures. Which is added to
+a table in order to be presented. If statement required due to
+incompatibility in tables between markdown and html.
 
 ``` r
-#India_plot <- India_Comparison_Plot(data = Olympic_df, data_root = "Question_4/data/")
-#India_plot
+Plot_Perf <- Relative_Performance()
+Plot_Perf
 ```
 
-For this function it is important that I get to the total amount of
-unique medals won by each country. Firstly I filter so that I only have
-Summer observations. Then I group by year, event, sport and medal, this
-allows me to count by country to get the total amount of medals per
-medal event. Then I can group by country and summarise by gold, silver
-and bronze medals. This allows me to create a column which is the medal
-tally for each country.
-*M**e**d**a**l**T**a**l**l**y* = 3 × *G**o**l**d**M**e**d**a**l**s* + 2 × *S**i**l**v**e**r**M**e**d**a**l**s* + 1 × *B**r**o**n**z**e**M**e**d**a**l**s*
-I then rejoin the GDP dataset and rank the countries by GDP per capita.
+![](README_files/figure-markdown_github/unnamed-chunk-22-1.png)
 
-After this I can find the rank of India and filter so that the dataframe
-only contains India and the \#*Range_size* (where \#*Range_size* can be
-set, default is 10) above and below India according to GDP per capita.
-This can be piped to a lollipop plot which allows me to analyse the
-medal tallies of surrounding countries. Lollipop size is scaled with the
-square root of population to account for the exponential differences
-across countries.
+Having the returns of the portfolio as well as it’s benchmark allows me
+to calcualte the information ratio of the portfolio, thus looking at the
+risk adjusted returns compared to a benchmark. In order to get a more
+accurate estimation we take a rolling mean and rolling standard
+deviation to compute the information ratio.
 
 ``` r
-#stack_plot <- Stacked_Medal_Plot(Olympic_df)
-#stack_plot
+Plot_Sector <- Sector_Pie()
+Plot_Sector
 ```
 
-In the Stacked_Medal_Plot() function we first alter the operations from
-the previous function that returns the medal tally per country so that
-it gives the total medal tally in the dataset, we then arrange the
-dataset in descending order of medal tally and take the top 9 countries
-(excluding the Soviet Union and East Germany).
+![](README_files/figure-markdown_github/unnamed-chunk-23-1.png)
 
-This is then used to filter the overall dataset by these 9 countries and
-plot a stacked line chart between winter and summer Olympics for the
-nine most historically successful nations. Facet wrap is used to see the
-different countries side by side.
+This takes the sector weights divided by the total weight to get a
+percentage of the portfolio that is invested in the sector at a specific
+point in time. This is then graphed over time to show how these weights
+and dependency on certain sectors change.
 
 ``` r
-#punching_table <- Create_Table_Punching(Olympic_df, Markdown = TRUE, data_root = "Question_4/data/")
-#punching_table
+Plot_Weights <- Weights_StackBar()
 ```
 
-In this function we perform similar operation to the previous function,
-but we then continue to rank countries by total medal tally and also by
-GDP per capita. Once we have both ranks we can subtract them from each
-other to form a column that displays the difference in ranking between
-GDP per capita and medal tally. This difference in rankings is then
-filtered to just include the extremes and is then printed to a table.
-The level of extremity can be decided by adjusting \#*top_bot_size*
-(default of \#*top_bot_size* is set to 41).
+![](README_files/figure-markdown_github/unnamed-chunk-24-1.png)
 
 ``` r
-#weight_plot <- C_Weight_Plot(Olympic_df)
-#weight_plot
+Plot_Weights
 ```
 
-This function focuses specifically on the sport of weightlifting at the
-Olympics. I then filter by weightlifting and calculate the total medal
-tallies for all countries in weightlifting. I then take the top
-\#*no_countries* (where \#*no_countries* can be set, but the default is
-10). I then calculate and plot the cumulative medal over time for the
-top countries and draw a line plot with geometric points. I add a
-vertical line at the year 1967 as this is when performance enhancing
-drugs was outlawed.
+In this function I first spread by Tickers to get zeroes where there are
+no weights. I then slice the top n stocks to include and sum the rest to
+create an “Other” stock with the remainder of the stocks. I then
+summarise the weight by tickers and dte to get the breakdown of weights
+over the timeline. This allows us to look at changes in stock weights
+over time.
 
 ## Question 5
+
+This section explains the coding behind question 5 of the exam. The
+following code was used to create the project and to fetch the functions
+to be used in Question 5 from the code folder.
 
 ``` r
 #Firstly Create the Texevier project
 #Texevier::create_template_html(directory = glue::glue("{getwd()}/"), template_name = "Question_5")
 
-list.files('Question_5/code/', full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
+list.files(paste0(getwd(), "/Questions/Question_5/code/"), full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
 ```
-
-The above code created the Texevier document and calls the available
-functions from the question 5 code folder.
 
 ``` r
-#Database_Connect(dataroot = "datascience")
+Currencies_df <- Data_Workings()
+Currencies_df
 ```
 
-The above function should in theory connect to an external database,
-however in this specific context I could not get it to work. It gives me
-an error saying that the object ‘out’ could not be found. Further work
-was done to try and get access via a dev.sql file that is not included
-here.
+The aim of the above function is simply to wrangle the cncy rds file by
+cleaning up observation names and calculating the log rate of change for
+the currencies.
+
+``` r
+plot_Hist <- Plot_sdRank(Currencies_df)
+plot_Hist
+```
+
+![](README_files/figure-markdown_github/unnamed-chunk-27-1.png)
+
+This function calculates the annualised standard deviation for each
+currency over the last 5 years to compare volatility in recent years.
+South Africa is filled a different colour so as to easily be able to see
+where we rank in terms of recent standard deviation.
+
+``` r
+plot_Persist <- Return_Persistence(Currencies_df)
+plot_Persist
+```
+
+![](README_files/figure-markdown_github/unnamed-chunk-28-1.png)
+
+This function uses a very similar structure to the practicals to get the
+rate of change persistence for the south african rand, this is done to
+qualitatively look for the need to implement a GARCH model. I added the
+time frame and filter.
+
+``` r
+Garch_plot <- Fitting_Garch(Currencies_df)
+Garch_plot
+```
+
+![](README_files/figure-markdown_github/unnamed-chunk-29-1.png)
+
+This function is again similar to practicals as it uses the estimated
+sigmas from a sGARCH(1,1) with an ARMA(1,0) mean process and compares it
+to the sigmas of the actual data of the South African Rand.
+
+``` r
+GoGarch_plot <- Imp_Go_Garch(Currencies_df)
+GoGarch_plot
+```
+
+![](README_files/figure-markdown_github/unnamed-chunk-30-1.png) There
+are actually two separate function at play here. The first is a function
+called Above_avg_Perf() which looks at the bbdxy and Rand and calculates
+monthly rolling 2 year returns. I then calculate the mean of the returns
+series and filter by dates where the Dollar is above it’s mean (Dollar
+is appreciating). I then calculate the stretches of dates for which the
+rolling returns remain above the average. Giving us the dates for the
+green blocks.
+
+The second function was used to create the plot. This is where I choose
+my 5 currencies and implement a GO-GARCH model with gjrGarch of order
+(1,1) and an ARMA(1,0) mean process. I can then fit and calculate the
+GO-GARCH model and use it to get estimates for the time varying
+correlation between stocks.
+
+## Question 6
+
+This section explains the coding behind question 6 of the exam. The
+following code was used to create the project and to fetch the functions
+to be used in Question 6 from the code folder.
+
+``` r
+#Firstly Create the Texevier project
+#Texevier::create_template_html(directory = glue::glue("{getwd()}/"), template_name = "Question_6")
+
+list.files(paste0(getwd(), "/Questions/Question_6/code/"), full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
+```
+
+``` r
+Combined_df <- Data_Read_Wrangle()
+Combined_df
+```
+
+This function combines the MAA and msci databases while making sure that
+stocks have at least 3 years of returns to be eligible and calculating
+the log return on the price.
+
+``` r
+plot_Table <- Current_Opt(Combined_df, Markdown = TRUE)
+plot_Table
+```
+
+This function makes use of another function called
+Optimise_Portfolio_ROI. In this function I calculate the estimates for
+Mu and Sigma (forr Sigma I used the Ledoit-Wolfe method). I then create
+the total, individual and group constraints to produce a corresponding
+Amat and bvec matrix and vector. I then solve the problem based on
+mean-variance tradeoff solution and get the corresponding weights.
+
+The Current_Opt function is then used to produce the optimal weights for
+the latest date, which is then displayed in a table.
+
+``` r
+plot_HistOpt <- Port_Rebalancing(Combined_df)
+```
+
+![](README_files/figure-markdown_github/unnamed-chunk-34-1.png)
+
+``` r
+plot_HistOpt
+```
+
+In this function I get the rebalancing dates as quarters and run a for
+loop where I run the Optimise_Portfolio_ROI each time with data looking
+back three years. These dates are then added to a growing weights
+dataframe. It is this weights dataframe that produces the figure using
+the PerformanceAnalytics package.

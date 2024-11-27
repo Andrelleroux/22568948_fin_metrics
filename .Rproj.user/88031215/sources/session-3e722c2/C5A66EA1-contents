@@ -227,29 +227,83 @@ In this function I first spread by Tickers to get zeroes where there are no weig
 
 ## Question 5
 
+This section explains the coding behind question 5 of the exam. The following code was used to create the project and to fetch the functions to be used in Question 5 from the code folder.
+
 ```{r, results='hide', message=FALSE, warning=FALSE}
 #Firstly Create the Texevier project
 #Texevier::create_template_html(directory = glue::glue("{getwd()}/"), template_name = "Question_5")
 
-list.files('Question_5/code/', full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
+list.files(paste0(getwd(), "/Questions/Question_5/code/"), full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
 ```
-
-The above code created the Texevier document and calls the available functions from the question 5 code folder.
 
 ```{r, results='hide', message=FALSE, warning=FALSE}
-#Database_Connect(dataroot = "datascience")
+Currencies_df <- Data_Workings()
+Currencies_df
+```
+The aim of the above function is simply to wrangle the cncy rds file by cleaning up observation names and calculating the log rate of change for the currencies. 
 
+```{r, results='hide', message=FALSE, warning=FALSE}
+plot_Hist <- Plot_sdRank(Currencies_df)
+plot_Hist
 ```
 
-The above function should in theory connect to an external database, however in this specific context I could not get it to work. It gives me an error saying that the object 'out' could not be found. Further work was done to try and get access via a dev.sql file that is not included here.
+This function calculates the annualised standard deviation for each currency over the last 5 years to compare volatility in recent years. South Africa is filled a different colour so as to easily be able to see where we rank in terms of recent standard deviation.
+
+```{r, results='hide', message=FALSE, warning=FALSE}
+plot_Persist <- Return_Persistence(Currencies_df)
+plot_Persist
+```
+
+This function uses a very similar structure to the practicals to get the rate of change persistence for the south african rand, this is done to qualitatively look for the need to implement a GARCH model. I added the time frame and filter.
+
+```{r, results='hide', message=FALSE, warning=FALSE}
+Garch_plot <- Fitting_Garch(Currencies_df)
+Garch_plot
+```
+
+This function is again similar to practicals as it uses the estimated sigmas from a sGARCH(1,1) with an ARMA(1,0) mean process and compares it to the sigmas of the actual data of the South African Rand.
+
+```{r, results='hide', message=FALSE, warning=FALSE}
+GoGarch_plot <- Imp_Go_Garch(Currencies_df)
+GoGarch_plot
+```
+There are actually two separate function at play here. The first is a function called Above_avg_Perf() which looks at the bbdxy and Rand and calculates monthly rolling 2 year returns. I then calculate the mean of the returns series and filter by dates where the Dollar is above it's mean (Dollar is appreciating). I then calculate the stretches of dates for which the rolling returns remain above the average. Giving us the dates for the green blocks.
+
+The second function was used to create the plot. This is where I choose my 5 currencies and implement a GO-GARCH model with gjrGarch of order (1,1) and an ARMA(1,0) mean process. I can then fit and calculate the GO-GARCH model and use it to get estimates for the time varying correlation between stocks.
 
 ## Question 6
+
+This section explains the coding behind question 6 of the exam. The following code was used to create the project and to fetch the functions to be used in Question 6 from the code folder.
 
 ```{r, results='hide', message=FALSE, warning=FALSE}
 #Firstly Create the Texevier project
 #Texevier::create_template_html(directory = glue::glue("{getwd()}/"), template_name = "Question_6")
 
-list.files('Question_5/code/', full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
+list.files(paste0(getwd(), "/Questions/Question_6/code/"), full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
 ```
+
+```{r, results='hide', message=FALSE, warning=FALSE}
+Combined_df <- Data_Read_Wrangle()
+Combined_df
+```
+
+This function combines the MAA and msci databases while making sure that stocks have at least 3 years of returns to be eligible and calculating the log return on the price.
+
+```{r, results='hide', message=FALSE, warning=FALSE}
+plot_Table <- Current_Opt(Combined_df, Markdown = TRUE)
+plot_Table
+```
+
+This function makes use of another function called Optimise_Portfolio_ROI. In this function I calculate the estimates for Mu and Sigma (forr Sigma I used the Ledoit-Wolfe method). I then create the total, individual and group constraints to produce a corresponding Amat and bvec matrix and vector. I then solve the problem based on mean-variance tradeoff solution and get the corresponding weights.
+
+The Current_Opt function is then used to produce the optimal weights for the latest date, which is then displayed in a table.
+
+```{r, results='hide', message=FALSE, warning=FALSE}
+plot_HistOpt <- Port_Rebalancing(Combined_df)
+plot_HistOpt
+```
+
+In this function I get the rebalancing dates as quarters and run a for loop where I run the Optimise_Portfolio_ROI each time with data looking back three years. These dates are then added to a growing weights dataframe. It is this weights dataframe that produces the figure using the PerformanceAnalytics package.
+
 
 
