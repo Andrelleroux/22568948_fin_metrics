@@ -1,92 +1,211 @@
 library(tidyverse)
+library(RColorBrewer)
 
 Capping_Effect <- function(){
 
-    ALSI <- read_rds("data/ALSI.rds") %>%
-        rename("SWIX" = "J403") %>%
-        rename("ALSI" = "J203") %>%
-        select(-Sector, -Index_Name) %>%
-        pivot_longer(cols = c(SWIX, ALSI),
-                     names_to = "Fund",
-                     values_to = "weight")
-    data <- ALSI
+    ALSI <- read_rds("data/ALSI.rds")
 
     RebDays <- read_rds("data/Rebalance_days.rds") %>%
-        filter(date >= ymd(20130102) & date <= ymd(20230831))
+        filter(date >= first(ALSI$date) &
+                   Date_Type == "Effective Date" &
+                   date <= last(ALSI$date))
 
-    rebalance_col <- data %>%
+    rebALSI <- ALSI %>%
         filter(date %in% RebDays$date) %>%
-        left_join(., RebDays, by = "date") %>%
         mutate(RebalanceTime = format(date, "%Y%B")) %>%
-    #For Rebalancing use the Reb Trade Day only
-        filter(Date_Type == "Reb Trade Day") %>%
-        select(date, Tickers, weight, Return, RebalanceTime, Fund)
+        select(date, Tickers, Return, J203, RebalanceTime) %>%
+        rename(weight = J203) %>%
+        mutate(weight = coalesce(weight , 0))
 
-    Capped10_df <- rebalance_col %>%
-        group_split(RebalanceTime, Fund) %>%
-        map_df(~Proportional_Cap_Foo(., W_Cap = 0.1)) %>%
-        select(-RebalanceTime) %>%
-        mutate(Capped_At = "10%")
+    #10% Capped ALSI
 
-    Uncapped_df <- rebalance_col %>%
-        group_split(RebalanceTime, Fund) %>%
-        map_df(~Proportional_Cap_Foo(., W_Cap = Inf)) %>%
-        select(-RebalanceTime) %>%
-        mutate(Capped_At = "Uncapped")
+    Capped <- rebALSI %>%
+        group_split(RebalanceTime) %>%
+        map_df(~Proportional_Cap_Foo(., W_Cap = 0.1) ) %>% # weight specified
+        select(-RebalanceTime)
 
-    Capped5_df <- rebalance_col %>%
-        group_split(RebalanceTime, Fund) %>%
-        map_df(~Proportional_Cap_Foo(., W_Cap = 0.05)) %>%
-        select(-RebalanceTime) %>%
-        mutate(Capped_At = "5%")
+    ALSI_wts <- Capped %>%
+        tbl_xts(cols_to_xts = weight,
+                spread_by = Tickers)
 
-    All_Portfolios <- bind_rows(Uncapped_df, Capped5_df, Capped10_df)
+    ALSI_rts <- ALSI %>%
+        filter(Tickers %in% unique(Capped$Tickers)) %>%
+        tbl_xts(cols_to_xts = Return,
+                spread_by = Tickers)
 
-    returns_list <- All_Portfolios %>%
-        group_split(Capped_At, Fund) %>%
-        map_df(function(df) {
-            wts <- df %>%
-                tbl_xts(cols_to_xts = weight, spread_by = Tickers)
+    ALSI_wts[is.na(ALSI_wts)] <- 0
 
-            rts <- df %>%
-                filter(Tickers %in% unique(df$Tickers)) %>%
-                tbl_xts(cols_to_xts = Return, spread_by = Tickers)
+    ALSI_rts[is.na(ALSI_rts)] <- 0
 
-            wts[is.na(wts)] <- 0
-            rts[is.na(rts)] <- 0
+    ALSICapped_10 <- rmsfuns::Safe_Return.portfolio(R = ALSI_rts,
+                                                 weights = ALSI_wts,
+                                                 lag_weights = T) %>%
+        xts_tbl() %>%
+        rename(ALSI_10 = portfolio.returns)
 
-            Port_Ret <- rmsfuns::Safe_Return.portfolio(R = rts, weights = wts,
-                                                       lag_weights = TRUE, value = 1000,
-                                                       geometric = T) %>%
-                xts_tbl() %>%
-                rename(Return = portfolio.returns) %>%
-                mutate(Capped_At = unique(df$Capped_At),
-                       Fund = unique(df$Fund))
-            Port_Ret
-        })
+    #5% Capped ALSI
+    Capped <- rebALSI %>%
+        group_split(RebalanceTime) %>%
+        map_df(~Proportional_Cap_Foo(., W_Cap = 0.05) ) %>% # weight specified
+        select(-RebalanceTime)
 
-    #RMSfuns giving non-sensical results
-    Manual_portfolio_returns <- All_Portfolios %>%
-        group_by(Fund, Capped_At, date) %>%
-        # Calculate the weighted return for each date, Fund, and capping level
-        summarise(Weighted_Return = sum(weight * Return, na.rm = TRUE), .groups = "drop")
+    ALSI_wts <- Capped %>%
+        tbl_xts(cols_to_xts = weight,
+                spread_by = Tickers)
 
-    Plot_Cap_Rets <- Manual_portfolio_returns %>%
-        group_by(Fund, Capped_At) %>%
-        arrange(date) %>%
-        mutate(CumReturn = cumprod(1 + Weighted_Return)) %>%
-        ungroup() %>%
-        ggplot(aes(x = date, y = CumReturn, color = Capped_At)) +
-        geom_line() +
-        facet_wrap(~ Fund) +
-        labs(
-            title = "Portfolio Returns by Capping Levels",
-            x = "",
-            y = "Cumulative Return",
-            color = "Capping Level"
-        ) +
+    ALSI_rts <- ALSI %>%
+        filter(Tickers %in% unique(Capped$Tickers)) %>%
+        tbl_xts(cols_to_xts = Return,
+                spread_by = Tickers)
+
+    ALSI_wts[is.na(ALSI_wts)] <- 0
+
+    ALSI_rts[is.na(ALSI_rts)] <- 0
+
+    ALSICapped_5 <- rmsfuns::Safe_Return.portfolio(R = ALSI_rts,
+                                                 weights = ALSI_wts,
+                                                 lag_weights = T) %>%
+        xts_tbl() %>%
+        rename(ALSI_5 = portfolio.returns)
+
+    # Capped Portfolio - SWIX
+
+    RebSWIX <- ALSI %>%
+        filter(date %in% RebDays$date) %>%
+        mutate(RebalanceTime = format(date, "%Y%B")) %>%
+        select(date, Tickers, Return, J403, RebalanceTime) %>%
+        rename(weight = J403) %>%
+        mutate(weight = coalesce(weight , 0))
+
+    # Apply Proportional_Cap_Foo to ALSI to get capped return for cap of 5%
+
+    #10% SWIX cap
+
+    Capped <- RebSWIX %>%
+        group_split(RebalanceTime) %>%
+        map_df(~Proportional_Cap_Foo(., W_Cap = 0.1) ) %>% # weight specified
+        select(-RebalanceTime)
+
+    SWIX_wts <- Capped %>%
+        tbl_xts(cols_to_xts = weight,
+                spread_by = Tickers)
+
+    SWIX_rts <- ALSI %>%
+        filter(Tickers %in% unique(Capped$Tickers)) %>%
+        tbl_xts(cols_to_xts = Return,
+                spread_by = Tickers)
+
+    SWIX_wts[is.na(SWIX_wts)] <- 0
+
+    SWIX_rts[is.na(SWIX_rts)] <- 0
+
+    SWIX_capped_10 <- rmsfuns::Safe_Return.portfolio(R = SWIX_rts,
+                                                  weights = SWIX_wts,
+                                                  lag_weights = T) %>%
+        xts_tbl() %>%
+        rename(SWIX_10 = portfolio.returns)
+
+    #5% SWIX cap
+
+    Capped <- RebSWIX %>%
+        group_split(RebalanceTime) %>%
+        map_df(~Proportional_Cap_Foo(., W_Cap = 0.05) ) %>% # weight specified
+        select(-RebalanceTime)
+
+    SWIX_wts <- Capped %>%
+        tbl_xts(cols_to_xts = weight,
+                spread_by = Tickers)
+
+    SWIX_rts <- ALSI %>%
+        filter(Tickers %in% unique(Capped$Tickers)) %>%
+        tbl_xts(cols_to_xts = Return,
+                spread_by = Tickers)
+
+    SWIX_wts[is.na(SWIX_wts)] <- 0
+
+    SWIX_rts[is.na(SWIX_rts)] <- 0
+
+    SWIX_capped_5 <- rmsfuns::Safe_Return.portfolio(R = SWIX_rts,
+                                                  weights = SWIX_wts,
+                                                  lag_weights = T) %>%
+        xts_tbl() %>%
+        rename(SWIX_5 = portfolio.returns)
+
+    # Combine
+
+    CapIndex <- left_join(ALSICapped_5, ALSICapped_10, by = "date") %>%
+        left_join(., SWIX_capped_5, by = "date") %>%
+        left_join(., SWIX_capped_10, by = "date") %>%
+        pivot_longer(c("ALSI_10","ALSI_5" , "SWIX_10", "SWIX_5"),
+                     names_to = "Method",
+                     values_to = "returns")
+
+    # Uncapped Return - ALSI
+
+    ALSI_wts <- ALSI %>%
+        filter(date %in% RebDays$date) %>%
+        mutate(RebalanceTime = format(date, "%Y%B")) %>%
+        rename(weight = J203) %>%
+        mutate(weight = coalesce(weight , 0)) %>%
+        select(date, Tickers, Return, weight, RebalanceTime) %>%
+        tbl_xts(cols_to_xts = weight,
+                spread_by = Tickers)
+
+    ALSI_wts[is.na(ALSI_wts)] <- 0
+
+    ALSI_rts[is.na(ALSI_rts)] <- 0
+
+    ALSICapped <- rmsfuns::Safe_Return.portfolio(R = ALSI_rts, weights = ALSI_wts,
+                                                 lag_weights = T) %>%
+        xts_tbl() %>%
+        rename(ALSI = portfolio.returns)
+
+    # Uncapped Return - SWIX
+
+    SWIX_wts <- ALSI %>%
+        filter(date %in% RebDays$date) %>%
+        mutate(RebalanceTime = format(date, "%Y%B")) %>%
+        rename(weight = J403) %>%
+        mutate(weight = coalesce(weight , 0)) %>%
+        select(date, Tickers, Return, weight, RebalanceTime) %>%
+        tbl_xts(cols_to_xts = weight, spread_by = Tickers)
+
+    SWIX_wts[is.na(SWIX_wts)] <- 0
+
+    SWIX_rts[is.na(SWIX_rts)] <- 0
+
+    SWIX_capped <- rmsfuns::Safe_Return.portfolio(R = SWIX_rts,
+                                                  weights = SWIX_wts,
+                                                  lag_weights = T) %>%
+        xts_tbl() %>%
+        rename(SWIX = portfolio.returns)
+
+    # Combine
+
+    AlsiSwix <- left_join(ALSICapped,
+                          SWIX_capped, by = "date") %>%
+        pivot_longer(c("ALSI", "SWIX"),
+                     names_to = "Method",
+                     values_to = "Returns") %>%
+        rename("returns" = "Returns") %>%
+        rbind(CapIndex)
+
+    Plot_Cap_Rets <- AlsiSwix %>%
+        group_by(Method) %>%
+        mutate(Cum_Ret = cumprod(1 + returns)) %>%
+        mutate(Index = if_else(str_sub(Method, 1, 4) == "ALSI", "ALSI", "SWIX")) %>%
+        ggplot() +
+        geom_line(aes(date,
+                      Cum_Ret,
+                      colour = Method),
+                  alpha = 0.6, size = 0.7) +
+        facet_wrap(~Index) +
+        labs(title = "Performance of Indices Based on Capping",
+             x = "Cumulative Returns",
+             y = "") +
+        scale_color_brewer(palette = "Set1") +
         fmxdat::theme_fmx()
 
-    Plot_Cap_Rets
+    return(Plot_Cap_Rets)
 
 }

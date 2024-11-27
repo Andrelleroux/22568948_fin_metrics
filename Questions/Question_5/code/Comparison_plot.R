@@ -10,7 +10,6 @@ Comparison_plot <- function(data = Currencies_df){
         mutate(Name = "US_prox") %>%
         select(date, Name, ROC)
 
-
     Plot_data <- Currencies_df %>%
         filter(Name == "SouthAfrica") %>%
         select(date, Name, ROC) %>%
@@ -20,7 +19,7 @@ Comparison_plot <- function(data = Currencies_df){
     #Get last day of each month
         arrange(date) %>%
         group_by(Name, Year_Month) %>%
-        filter(date == last(date)) %>%
+        filter(date == max(date)) %>%
         ungroup() %>%
     #Calculate Rolling Rate of Change
         mutate(Roll_ROC = roll_prod(1 + ROC, 24, fill = NA, align = "right")^(12/24) - 1) %>%

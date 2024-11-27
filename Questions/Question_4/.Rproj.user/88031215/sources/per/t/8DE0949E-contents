@@ -1,86 +1,57 @@
 ---
-title: "Question 4: "
+title: "Portfolio Analysis"
 author: "André le Roux"
 date: "November 2024"
-# date: "`r Sys.Date()`"
-bibliography: Tex/ref.bib       # Do not edit: Keep this naming convention and location.
-output:
-  pagedown::html_paged:
-    # template: wp_paged.html
-    # css: ['wp.css', 'wp-fonts.css', 'wp-page.css']
-    css: ["Template/default-fonts-Texevier.css", "Template/default-page-Texevier.css", "Template/default-Texevier.css"]
-    csl: Template/harvard-stellenbosch-university.csl # referencing format used.
-    template: ["Template/paged-Texevier.html"]
-
-    toc: true
-    # change to true for a self-contained document, but it'll be a litte slower for Pandoc to render
-    self_contained: TRUE
-abstract: |
-    In this report I will analyse the differences in the the popularity and features
-    of the musical portfolio of Coldplay and Metallica, I will then compare these features to the 
-    Billboard Top 20 between 1950 and 2020. 
-
+output: powerpoint_presentation
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE)
-pacman::p_load(modelsummary, gt, knitr, kableExtra, tidyverse)
+pacman::p_load(RcppRoll, tidyverse, zoo, gt, PerformanceAnalytics, tbl2xts, RColorBrewer)
 
-setwd("C:/Users/andre/OneDrive/Documents/Masters_2024_stuff/Data_Science/Data_Science_Exam/22568948/Question_2")
+setwd("~/Masters_2024_stuff/Financial_Econometrics/Fin_Metrics_Exam/22568948_fin_metrics/Questions/Question_4")
 list.files('code/', full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
 ```
 
 \newpage
 
-# Data {-}
-
-The data used in this report consists of the total discograhy of Metallica and Coldplay that is combined and filtered to only include original studio releases. This is report is also supplemented by data from the Billboard Top 100 and Spotify that is combined to provide the musical features of a portion of the Billboard Top 20 in the given time frame.
-
-# Analysis  {-}
-
-The first step in the analysis is to show the distribution of song popularity by album for Metallica and Coldplay over time. This is done in the following graph using box plots to demonstrate the distribution and points to represent individual songs. Albums that consist of a singular song are omitted from the figure below.
-
-```{r, results='hide'}
-
-Musictaste_df <- Inputting_Data(data_root = "data/")
-
-Filtered_df <- Data_Filtering(Musictaste_df)
-
-```
-##### Figure 1: {-}
-
-```{r, fig.height = 8, fig.width = 9}
-plot_box <- Plot_Pop_Box(Filtered_df)
-plot_box
-```
-From _figure 1_ we can see that the average popularity of Coldplay albums tend to be higher than Metallica albums, but the variance in the popularity of songs within albums are also usually higher. A possible conclusion from this is that Metallica has a consistent groups of hardcore fans, which listen to most albums and listen to all the songs on the albums. While Coldplay may have more popular songs, but people don't necessarily listen to all the songs on the album and don't commit to listening to unpopular music, as evidence by the three lower Coldplay albums.
-
-Next I analyse the differences in features of the music created by Coldplay and Metallica. I take the entire discography of the two bands and find the mean across all their songs. This allows for comparing the different styles employed by Coldplay and Metallica. 
-
-##### Figure 2: {-}
+### Analysis of Relative Risk
 
 ```{r}
-plot_hist <- Plot_Histogram(Filtered_df)
-plot_hist
+
+Risk_table <- Tracking_Error_Table()
+Risk_table
+
 ```
 
-From _figure 2_ we conclude that Metallica music tends to have considerably more energy and loudness than Coldplay music, but Coldplay's songs are considerably more acoustic, slightly more popular and has a slightly faster tempo.
+### Table Analysis
 
-For the third figure I include the supplementary data on the musical features of 1,649 songs that have been in the Billboard Top 20 between 1950 and 2020. This allows us to compare the distributions of the musical features of Coldplay and Metallica to those of "mainstream" music.
+When looking at the results from the first table we see that the annualised tracking error is 5%, this is concerningly high for an Index tracker. We can also see further information of the contextual risk of the portfolio. 
 
-##### Figure 3: {-}
+### Relative Performance
+
+This graph creates some worry as it is a relatively volatile information ratio (can stray far from benchmark) and spends a majority of the time below the y = 0 line, suggesting underperformance in terms of the benchmark.
 
 ```{r}
-#Load supplementary Datasets
-Supp_df <- Preparing_Supplementary(data_root = "data/")
-
-#Then we draw the graph
-Comparison_plot <- Comparing_Features(Filtered_df, Supp_df)
-Comparison_plot
+Plot_Perf <- Relative_Performance()
+Plot_Perf
 ```
-Firstly, _figure 3_ shows that Coldplay has a more modern discography than Metallica. Secondly it shows that Metallica has lower valence (whether the music is positive) than popular music and that Coldplay has lower valence than Metallica. Metallica is very high energy when compared to Coldplay and popular music, whereas Coldplay is widely distributed. Metallica has longer songs and both have less songs that are good for dancing. 
 
-# Conclusion {-}
+### Sector Specific Breakdown
 
-Metallica appear to have more hardcore fans while Coldplay tend to have more fans that listen to individual songs. Both tend to be sadder than popular music and Metallica has far more energy. It also appears that both bands have kept some degree of longevity as their recent albums rank among the best for both.
+This graph displays the changes to the sector composition across the time horison off this portfolio, with resources making up the lion share of the portfolio, however the share of financials have been improving since early 2024. There is an interesting one time spike in the resources percentage in 2020.
 
+```{r}
+Plot_Sector <- Sector_Pie()
+Plot_Sector
+```
+
+### Changes in Stock Weights Across Time
+
+This graph displays the weigths of the 10 most prevalent stocks across the time frame, as well as "Other" stocks which make up smaller percentages. Some stocks such as ABG maintain relatively consistent levels while other such as ARI alternate considerably more.
+
+```{r}
+Plot_Weights <- Weights_StackBar()
+Plot_Weights
+```
+## End

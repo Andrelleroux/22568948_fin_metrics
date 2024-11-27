@@ -1,5 +1,5 @@
 ---
-title: "Question 5: "
+title: "Volatility Analysis of the South African Rand "
 author: "André le Roux"
 date: "November 2024"
 # date: "`r Sys.Date()`"
@@ -16,17 +16,17 @@ output:
     # change to true for a self-contained document, but it'll be a litte slower for Pandoc to render
     self_contained: TRUE
 abstract: |
-    In this report I will analyse the differences in the the popularity and features
-    of the musical portfolio of Coldplay and Metallica, I will then compare these features to the 
-    Billboard Top 20 between 1950 and 2020. 
+    This report will analyse the individual and comparative volatility of the
+    South African Rand within the context of other global countries. Thus, 
+    getting a more well rounded understanding of the volatility of the Rand.
 
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE)
-pacman::p_load(modelsummary, gt, knitr, kableExtra, tidyverse)
+pacman::p_load(rugarch, rmgarch, zoo, tbl2xts, RcppRoll, tidyverse)
 
-setwd("C:/Users/andre/OneDrive/Documents/Masters_2024_stuff/Data_Science/Data_Science_Exam/22568948/Question_2")
+setwd("~/Masters_2024_stuff/Financial_Econometrics/Fin_Metrics_Exam/22568948_fin_metrics/Questions/Question_5")
 list.files('code/', full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
 ```
 
@@ -34,53 +34,60 @@ list.files('code/', full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.
 
 # Data {-}
 
-The data used in this report consists of the total discograhy of Metallica and Coldplay that is combined and filtered to only include original studio releases. This is report is also supplemented by data from the Billboard Top 100 and Spotify that is combined to provide the musical features of a portion of the Billboard Top 20 in the given time frame.
+The Data used in this report consists of daily level exchange rate data, daily data for the Bloomberg Dollar Spot Index (BBDXY), which is the value of the US Dollar in comparison to other G10 country currencies and the Deutsche Bank G10 Harvest Index as a proxy for the returns of a carry strategy of G10 currencies.
 
 # Analysis  {-}
 
-The first step in the analysis is to show the distribution of song popularity by album for Metallica and Coldplay over time. This is done in the following graph using box plots to demonstrate the distribution and points to represent individual songs. Albums that consist of a singular song are omitted from the figure below.
+The first graph is a simple ranking of the annualised standard deviation over the past 5 years for all currencies in our dataset. This gives us a rough first estimate of the relative volatility of the Rand in comparison to other currencies.
 
 ```{r, results='hide'}
 
-Musictaste_df <- Inputting_Data(data_root = "data/")
-
-Filtered_df <- Data_Filtering(Musictaste_df)
+Currencies_df <- Data_Workings()
+Currencies_df
 
 ```
+
 ##### Figure 1: {-}
 
 ```{r, fig.height = 8, fig.width = 9}
-plot_box <- Plot_Pop_Box(Filtered_df)
-plot_box
+plot_Hist <- Plot_sdRank(Currencies_df)
+plot_Hist
 ```
-From _figure 1_ we can see that the average popularity of Coldplay albums tend to be higher than Metallica albums, but the variance in the popularity of songs within albums are also usually higher. A possible conclusion from this is that Metallica has a consistent groups of hardcore fans, which listen to most albums and listen to all the songs on the albums. While Coldplay may have more popular songs, but people don't necessarily listen to all the songs on the album and don't commit to listening to unpopular music, as evidence by the three lower Coldplay albums.
 
-Next I analyse the differences in features of the music created by Coldplay and Metallica. I take the entire discography of the two bands and find the mean across all their songs. This allows for comparing the different styles employed by Coldplay and Metallica. 
+South Africa (in green) is ranked 6th over the last 6 years in standard deviation of currency. On the other end of the graph we see extremely low standard deviation from currencies that are fixed or pegged to the US Dollar. _Figure 1_ provides some evidence that the South African Rand is one of the most volatile currencies in the last couple of years.
+
+In order to get a more accurate prediction of variance I look at the rate of change persistence of the South African Rand to look for any signs of first order and second order persistence.
 
 ##### Figure 2: {-}
 
 ```{r}
-plot_hist <- Plot_Histogram(Filtered_df)
-plot_hist
+plot_Persist <- Return_Persistence(Currencies_df)
+plot_Persist
 ```
 
-From _figure 2_ we conclude that Metallica music tends to have considerably more energy and loudness than Coldplay music, but Coldplay's songs are considerably more acoustic, slightly more popular and has a slightly faster tempo.
+It appears clear from _figure 2_ that there is first and second order persistence, however I also conducted a Ljung-Box test which returned a p-value of 0. Thereby strongly suggesting the use of a GARCH model.
 
-For the third figure I include the supplementary data on the musical features of 1,649 songs that have been in the Billboard Top 20 between 1950 and 2020. This allows us to compare the distributions of the musical features of Coldplay and Metallica to those of "mainstream" music.
+The next step I do is to implement the GARCH and graph the difference in sigma's with and without the GARCH model to demonstrate it's effects.
 
 ##### Figure 3: {-}
 
 ```{r}
-#Load supplementary Datasets
-Supp_df <- Preparing_Supplementary(data_root = "data/")
-
-#Then we draw the graph
-Comparison_plot <- Comparing_Features(Filtered_df, Supp_df)
-Comparison_plot
+Garch_plot <- Fitting_Garch(Currencies_df)
+Garch_plot
 ```
-Firstly, _figure 3_ shows that Coldplay has a more modern discography than Metallica. Secondly it shows that Metallica has lower valence (whether the music is positive) than popular music and that Coldplay has lower valence than Metallica. Metallica is very high energy when compared to Coldplay and popular music, whereas Coldplay is widely distributed. Metallica has longer songs and both have less songs that are good for dancing. 
+As a result of the GARCH(1,1) model we can see a vast decrease in variance as the noise is removed from the process. 
+
+I also then fit a GO-GARCH model with the following variables: South African Rand, the BBDXY,  the Deutsche Bank G10 Harvest Index, EU and China for exposure to several other possibly correlated series. The figure is the approximation for the time variant correlation between these currencies. The highlighted time period are period where the rolling mean of the bbdxy was above it's total sample mean (periods where the Dollar is strong).
+
+##### Figure 4 {-}
+
+```{r}
+GoGarch_plot <- Imp_Go_Garch(Currencies_df)
+GoGarch_plot
+```
+From _figure 4_ we can see that the Rand is negatively correlated with a G10 carry trade. Reinforcing the idea that the Rand does well when currency valuations are relatively cheap. However, the Rand positively correlated with the EU, China and the US. Although uncertain there appears to be some evidence that the correlation between the US Dollar and the Rand goes down during periods when the Dollar is strong. Suggesting a risk-on sentiment. 
 
 # Conclusion {-}
 
-Metallica appear to have more hardcore fans while Coldplay tend to have more fans that listen to individual songs. Both tend to be sadder than popular music and Metallica has far more energy. It also appears that both bands have kept some degree of longevity as their recent albums rank among the best for both.
+We have found evidence in the data that supports the idea that the Rand is one of the more volatile currencies over the last year and does well when currencies are valued relatively cheap.
 

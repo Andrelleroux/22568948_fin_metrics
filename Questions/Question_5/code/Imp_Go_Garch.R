@@ -29,7 +29,7 @@ Imp_Go_Garch <- function(data = Currencies_df){
         ungroup() %>%
         filter(date >= ymd(20110101) & date <= ymd(20200320)) %>%
         filter(Name %in% c("SouthAfrica",
-                           "US_prox", "G10_Carry", "EU", "Japan")) %>%
+                           "US_prox", "G10_Carry", "EU", "China")) %>%
         select(date, ROC, Name) %>%
         tbl_xts(., cols_to_xts = ROC, spread_by = Name)
 
@@ -67,12 +67,13 @@ Imp_Go_Garch <- function(data = Currencies_df){
           !grepl("_SouthAfrica", Pairs))) +
         geom_line(aes(x = date, y = Rho,
           colour = Pairs)) +
-        geom_rect(data = Above_avg_periods, inherit.aes = F,
+        geom_rect(data = US_perf, inherit.aes = F,
               aes(xmin = Start, xmax = End,
                   ymin = -Inf, ymax = Inf),
               alpha = 0.2, fill = "green") +
         fmxdat::theme_fmx() +
-        ggtitle("Go-GARCH: ZAR")
+        labs(x = "", y = "Correlation") +
+        ggtitle("Time Varying Correrlation of ZAR to Others")
 
     return(Plot_GoGarch)
 }

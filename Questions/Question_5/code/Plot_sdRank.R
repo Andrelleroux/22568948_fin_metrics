@@ -3,9 +3,9 @@ library(tidyverse)
 Plot_sdRank <- function(data = Currencies_df){
 
     Plot_1_sdRank <- Currencies_df %>%
-        filter(date >= (last(date)-years(5))) %>%
+        filter(date >= (max(date)-years(5))) %>%
         group_by(Name) %>%
-        summarise(Vol_est = sd(ROC, na.rm = TRUE)) %>%
+        summarise(Vol_est = sd(ROC, na.rm = TRUE)*sqrt(252)) %>%
         arrange(desc(Vol_est)) %>%
         ggplot(aes(x = reorder(Name, -Vol_est), y = Vol_est, fill = Name == "SouthAfrica")) +
         geom_bar(stat = "identity", show.legend = F) +

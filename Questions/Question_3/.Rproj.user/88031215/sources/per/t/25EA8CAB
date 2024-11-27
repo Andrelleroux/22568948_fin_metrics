@@ -3,7 +3,7 @@
     "path": "~/Masters_2024_stuff/Financial_Econometrics/Fin_Metrics_Exam/22568948_fin_metrics/Questions/Question_3/Question_3.Rmd",
     "project_path": "Question_3.Rmd",
     "type": "r_markdown",
-    "hash": "2321529191",
+    "hash": "2378839673",
     "contents": "",
     "dirty": false,
     "created": 1732643251487.0,
@@ -11,14 +11,17 @@
     "relative_order": 1,
     "properties": {
         "source_window_id": "",
-        "Source": "Source"
+        "Source": "Source",
+        "cursorPosition": "105,285",
+        "scrollLine": "100",
+        "last_setup_crc32": "8e88a6cf40d4e5b6"
     },
     "folds": "",
-    "lastKnownWriteTime": 1732463022,
+    "lastKnownWriteTime": 1732688536,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1732463022,
+    "last_content_update": 1732688536756,
     "read_only": false,
     "read_only_alternatives": []
 }
